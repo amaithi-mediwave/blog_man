@@ -7,6 +7,7 @@ const {
     createArticle,
     getUserArticle,
     updateArticle,
+    deleteArticle,
 
 } = require("../controllers/articleController");
 
@@ -23,5 +24,7 @@ router.get("/user",validateToken, getUserArticles);
 router.get("/user/:id", validateToken, getUserArticle);
 
 router.put("/user/:id", validateToken, updateArticle);
+
+router.delete("/users/:id", validateToken, deleteArticle);
 
 module.exports = router;

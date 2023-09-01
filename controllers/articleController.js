@@ -97,8 +97,23 @@ const updateArticle = asyncHandler(async (req, res) => {
 
 
 
+//@ Desc Delete an Article
+//@route DELETE /api/articles/user/id
+//@ access Private
 
-
+const deleteArticle = asyncHandler(async (req, res) => {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      res.status(404);
+      throw new Error("article Not Found");
+    }
+    if(article.user_id.toString() !== req.user.id) {
+      res.status(403);
+      throw new Error("User don't have the permission to delete other user contacts");
+    };
+  await Article.findByIdAndDelete(req.params.id);
+    res.status(200).json({message: "Article Deleted", Article: article});
+  });
 
 
 
@@ -110,4 +125,5 @@ module.exports = {
   getUserArticles,
   createArticle,
   updateArticle,
+  deleteArticle,
 };
