@@ -5,10 +5,10 @@ const mongoose = require("mongoose");
 
 const userDetailSchema = mongoose.Schema(
     {
-        email: {
-            type: String,
-            required: [true, "Please add the email id"],
-            unique: [true, "Email address not matching."],
+        user_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            unique: [true, "User info already exists"],
         },
         name: {
             type: String,
@@ -18,7 +18,8 @@ const userDetailSchema = mongoose.Schema(
             type: String,
             required: [true, "Please fill out the about"]
         }
-    }
+    },{ timestamp: true }
+    
 );
 
 

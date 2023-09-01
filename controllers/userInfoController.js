@@ -1,41 +1,54 @@
 
 const asyncHandler = require("express-async-handler");
-// const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
+const User = require("../models/userModel");
 const User_info = require("../models/userInfo");
+const ObjectId = require('mongodb').ObjectID;
 
 
-//@desc Register a user
-//@route GET /api/users/register
-//@access public
+//@desc Create User info
+//@route GET /api/users/user-info
+//@access private
 
 const createUserInfo = asyncHandler(async (req, res) => {
+    // const {uuser} = req.user;
     const { email, name, about } = req.body;
-  
+    
     if (!email || !name || !about) {
       res.status(400);
       throw new Error("All Fields are mandatory");
     }
     const userAvailable = await User.findOne({ email });
+    // const user_id = 
+    // const userInfoAvailable = await User_info.findOne({user_id: ObjectId(userAvailable['_id']) });
+    // console.log(userAvailable)
+    // console.log(userInfoAvailable)
+
+    // if (!userAvailable) {
+    //   res.status(400);
+    //   throw new Error("In-valid Registered Email address");
+    // } else if (userInfoAvailable) {
+    //   res.status(400);
+    //   throw new Error("User Info already Available");
+    // }
   
-    if (!userAvailable) {
-      res.status(400);
-      throw new Error("User already Registered");
-    }
   
-    // HASH PASSWORD
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("Hashed Password ", hashedPassword);
-    const user = await User.create({
-      username,
+    // Adding user info to the DB
+    const user = await User_info.create({
+      user_id: req.user.id,
       email,
-      password: hashedPassword,
+      name,
+      about,
+      
     });
 
-    console.log(`User Created ${user.username}`);
+    console.log(`User info Created ${user.name}`);
     if (user) {
       res.status(201).json({
         _id: user.id,
         email: user.email,
+        name: user.name,
+        about: user.about,
       });
     } else {
       res.status(400);
@@ -44,15 +57,18 @@ const createUserInfo = asyncHandler(async (req, res) => {
     // res.json({ message: `Registered the user ${user.username}` });
   });
   
-  //@desc user login
-  //@route GET /api/users/login
-  //@access public
+
+
+
+  //@desc update user Info
+  //@route GET /api/users/user-info
+  //@access private
   
-  const loginUser = asyncHandler(async (req, res) => {
-      const { email, password } = req.body;
-      if(!email || !password) {
+  const updateUserInfo = asyncHandler(async (req, res) => {
+      const { email, name, about } = req.body;
+      if(!email) {
           res.status(400);
-          throw new Error("All Fields are mandatory");
+          throw new Error("Email Mandatory");
   
       }
       const user = await User.findOne({ email });
@@ -84,5 +100,5 @@ const createUserInfo = asyncHandler(async (req, res) => {
     res.json(req.user);
   });
   
-  module.exports = { registerUser, loginUser, currentUser };
+  module.exports = { createUserInfo, updateUserInfo, currentUser };
   
