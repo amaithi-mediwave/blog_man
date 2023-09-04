@@ -21,7 +21,7 @@ const articleSchema = mongoose.Schema(
     },
     visibility: {
         type: String,
-        required: [true, "Please provide the visibility"],
+        required: [true, "Please provide the visibility"]
     }
   },
   { timestamps: true },

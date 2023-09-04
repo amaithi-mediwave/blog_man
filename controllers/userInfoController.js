@@ -1,104 +1,94 @@
-
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
 const User_info = require("../models/userInfo");
-const ObjectId = require('mongodb').ObjectID;
-
 
 //@desc Create User info
-//@route GET /api/users/user-info
+//@route POST /api/users/user-info
 //@access private
 
-const createUserInfo = asyncHandler(async (req, res) => {
-    // const {uuser} = req.user;
-    const { email, name, about } = req.body;
-    
-    if (!email || !name || !about) {
-      res.status(400);
-      throw new Error("All Fields are mandatory");
-    }
-    const userAvailable = await User.findOne({ email });
-    // const user_id = 
-    // const userInfoAvailable = await User_info.findOne({user_id: ObjectId(userAvailable['_id']) });
-    // console.log(userAvailable)
-    // console.log(userInfoAvailable)
+const createUpdateUserInfo = asyncHandler(async (req, res) => {
+  const { name, dob, profession, interests, about } = req.body;
 
-    // if (!userAvailable) {
-    //   res.status(400);
-    //   throw new Error("In-valid Registered Email address");
-    // } else if (userInfoAvailable) {
-    //   res.status(400);
-    //   throw new Error("User Info already Available");
-    // }
-  
-  
+  if (!name || !dob || !profession || !interests || !about) {
+    res.status(400);
+    throw new Error("All Fields are mandatory");
+  }
+  const userAvailable = await User_info.findOne({ user_id: req.user.id });
+
+  if (!userAvailable) {
     // Adding user info to the DB
     const user = await User_info.create({
       user_id: req.user.id,
-      email,
       name,
+      dob,
+      profession,
+      interests,
       about,
-      
     });
 
     console.log(`User info Created ${user.name}`);
+
     if (user) {
       res.status(201).json({
-        _id: user.id,
-        email: user.email,
-        name: user.name,
-        about: user.about,
+        User_info_created: {
+          name: user.name,
+          dob: user.dob,
+          profession: user.profession,
+          interests: user.interests,
+          about: user.about,
+        },
       });
-    } else {
+    }
+  } else {
+    try {
+      const updatedInfo = await User_info.findOneAndUpdate(
+        { user_id: req.user.id },
+        req.body,
+        {
+          new: true, // for retriving the newly updated document from the DB
+        }
+      );
+
+      console.log(`User info Updated for ${updatedInfo.name}`);
+      res.status(200).json({
+        updated_info: {
+          name: updatedInfo.name,
+          dob: updatedInfo.dob,
+          profession: updatedInfo.profession,
+          interests: updatedInfo.interests,
+          about: updatedInfo.about,
+        },
+      });
+    } catch {
       res.status(400);
       throw new Error("User data is not valid");
     }
-    // res.json({ message: `Registered the user ${user.username}` });
-  });
-  
+  }
+});
 
+//@desc current user info
+//@route GET /api/users/current
+//@access private
 
+const currentUserInfo = asyncHandler(async (req, res) => {
+  const user_info = await User_info.findOne({ user_id: req.user.id });
 
-  //@desc update user Info
-  //@route GET /api/users/user-info
-  //@access private
-  
-  const updateUserInfo = asyncHandler(async (req, res) => {
-      const { email, name, about } = req.body;
-      if(!email) {
-          res.status(400);
-          throw new Error("Email Mandatory");
-  
-      }
-      const user = await User.findOne({ email });
-      // Compare the password and hashed password
-      if(user && (await bcrypt.compare(password, user.password))){
-          const accessToken = jwt.sign({
-              user: {
-                  username: user.username,
-                  email: user.email,
-                  id: user.id,
-              },
-          }, process.env.ACCESS_TOKEN_SECRET, {
-              expiresIn: "15m"
-          });
-          res.status(200).json({
-              accessToken 
-          });
-      }else {
-          res.status(401)
-          throw new Error("email or password is not valid");
-      }
-  });
-  
-  //@desc current user info
-  //@route GET /api/users/current
-  //@access private
-  
-  const currentUser = asyncHandler(async (req, res) => {
-    res.json(req.user);
-  });
-  
-  module.exports = { createUserInfo, updateUserInfo, currentUser };
-  
+  if (!user_info) {
+    res
+      .status(204)
+      .json({ message: "User Info Doesn't Exists Create a New Info" });
+  } else {
+    res.status(200).json({
+      user_info: {
+        name: user_info.name,
+        dob: user_info.dob,
+        profession: user_info.profession,
+        interests: user_info.interests,
+        about: user_info.about,
+      },
+    });
+  }
+});
+
+module.exports = { createUpdateUserInfo, currentUserInfo };

@@ -66,7 +66,7 @@ const registerUser = asyncHandler(async (req, res) => {
           }, process.env.ACCESS_TOKEN_SECRET, {
               expiresIn: "15m"
           });
-          res.status(200).json({
+          res.status(200).json({message: "Login Successful",
               accessToken 
           });
       }else {

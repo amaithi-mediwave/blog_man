@@ -12,7 +12,6 @@ const {
 } = require("../controllers/articleController");
 
 const validateToken = require("../middleware/validateTokenHandler");
-const { updateUserInfo } = require("../controllers/userInfoController");
 
 // router.use(validateToken)
 router.route("/").get(getAllArticles)
@@ -25,6 +24,6 @@ router.get("/user/:id", validateToken, getUserArticle);
 
 router.put("/user/:id", validateToken, updateArticle);
 
-router.delete("/users/:id", validateToken, deleteArticle);
+router.delete("/user/:id", validateToken, deleteArticle);
 
 module.exports = router;

@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { createUserInfo } = require("../controllers/userInfoController")
+const { createUpdateUserInfo, currentUserInfo } = require("../controllers/userInfoController")
 
 const validateToken = require("../middleware/validateTokenHandler")
 
@@ -12,8 +12,10 @@ const validateToken = require("../middleware/validateTokenHandler")
 router.use(validateToken);
 
 
-router.post("/", createUserInfo);
-// router.post("/user-info", validateToken, createPost);
+router.post("/user-info", createUpdateUserInfo);
+
+router.get("/user-info", currentUserInfo);
+
 
 
 module.exports = router;

@@ -62,6 +62,7 @@ const createArticle = asyncHandler(async (req, res) => {
     blog_data,
     visibility,
   });
+  console.log(article);
   res.status(201).json({ message: `article ${article.title} is created` });
 });
 
@@ -80,7 +81,7 @@ const updateArticle = asyncHandler(async (req, res) => {
   if (article.user_id.toString() !== req.user.id) {
     res.status(403);
     throw new Error(
-      "You don't have permission to delete the Article posted by another author"
+      "You don't have permission to update the Article posted by another author"
     );
   }
 // console.log(article)
@@ -103,6 +104,7 @@ const updateArticle = asyncHandler(async (req, res) => {
 
 const deleteArticle = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id);
+    console.log(article);
     if (!article) {
       res.status(404);
       throw new Error("article Not Found");
