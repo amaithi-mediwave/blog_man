@@ -57,6 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
       const user = await User.findOne({ email });
       // Compare the password and hashed password
       if(user && (await bcrypt.compare(password, user.password))){
+        
           const accessToken = jwt.sign({
               user: {
                   username: user.username,
