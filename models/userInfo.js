@@ -3,17 +3,21 @@
 const mongoose = require("mongoose");
 
 
-const userDetailSchema = mongoose.Schema(
+const authorDetailSchema = mongoose.Schema(
     {
-        user_id: {
+        author_id: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
             ref: 'User',
             unique: [true, "User info already exists"],
         },
-        name: {
+        first_name: {
             type: String,
             required: [true, "Please give your name"],
+        },
+        last_name: {
+            type: String,
+            required: true,
         },
         dob: {
             type: String,
@@ -31,9 +35,9 @@ const userDetailSchema = mongoose.Schema(
             type: String,
             required: [true, "Please fill out the about"]
         }
-    }, { timestamps: true },
+    }, { timestamps: true, versionKey: false },
     
 );
 
 
-module.exports = mongoose.model("User_info", userDetailSchema);
+module.exports = mongoose.model("authorInfo", authorDetailSchema);

@@ -9,22 +9,40 @@ const articleSchema = mongoose.Schema(
     },
     title: {
       type: String,
-      required: [true, "Please Provide the Title"],
+      required: true,
     },
     summary: {
       type: String,
-      required: [true, "Please add the summary"],
+      required: true,
     },
     blog_data: {
       type: String,
-      required: [true, "Please add the blog_data"],
+      required: true,
     },
+    article_category: {
+      type: String,
+      required: true,
+    },
+    // article_category_id: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   required: true,
+    //   ref: "articleCategory",
+    // },
+
     visibility: {
-        type: String,
-        required: [true, "Please provide the visibility"]
+        type: Boolean,
+        required: true,
+    },
+    published_at: {
+      type: Date || null
+      // default: Date.now
     }
   },
-  { timestamps: true },
+  {timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, 
+  versionKey: false 
+}
+
+
 );
 
-module.exports = mongoose.model("article", articleSchema);
+module.exports = mongoose.model("Article", articleSchema);

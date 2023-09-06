@@ -1,21 +1,13 @@
 const asyncHandler = require("express-async-handler");
 const Article = require("../models/articleModel");
+const ArticleCategory = require("../models/articleCategoryModel")
 
 //@ Desc Get All Articles
 //@route GET /api/articles
 //@ access Public
 
 const getAllArticles = asyncHandler(async (req, res) => {
-  const articles = await Article.find({
-    visibility: "true",
-    function(err, docs) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("First function call : ", docs);
-      }
-    },
-  });
+  const articles = await Article.find({ visibility: true}, {user_id:0, __v: 0, created_at:0 ,updated_at:0, }); //exclude fields by using the second parameter of the find method
   res.status(200).json(articles);
 });
 
@@ -24,7 +16,7 @@ const getAllArticles = asyncHandler(async (req, res) => {
 //@ access Private
 
 const getUserArticles = asyncHandler(async (req, res) => {
-  const user_articles = await Article.find({ user_id: req.user.id });
+  const user_articles = await Article.find({ user_id: req.user.id }, {user_id:0, __v: 0});
   res.status(200).json(user_articles);
 });
 
@@ -33,7 +25,7 @@ const getUserArticles = asyncHandler(async (req, res) => {
 //@route GET /api/articles/user/id
 
 const getUserArticle = asyncHandler(async (req, res) => {
-    const user_article = await Article.findById(req.params.id);
+    const user_article = await Article.findById(req.params.id, {user_id:0, __v: 0});
     console.log(req.params.id)
   if (!user_article) {
     res.status(404);
@@ -48,20 +40,32 @@ const getUserArticle = asyncHandler(async (req, res) => {
 //@ access Private
 
 const createArticle = asyncHandler(async (req, res) => {
-  const { title, summary, blog_data, visibility } = req.body;
+  const { title, summary, blog_data, article_category, visibility } = req.body;
 
-  if (!title || !summary || !blog_data || !visibility) {
+  if (!title || !summary || !blog_data || !article_category) {
     res.status(400);
     throw new Error("Fill out all the fields");
   }
+//  category_ = await ArticleCategory.findOne({category_name});
 
-  const article = await Article.create({
-    user_id: req.user.id,
-    title,
-    summary,
-    blog_data,
-    visibility,
-  });
+//  if(!category_) {
+//   res.status(400);
+//     throw new Error("Fill out the Article Category properly");
+//  }
+// let pub = null;         // var variable = (condition) ? (true block) : (else block)
+
+var pub = (!visibility === true) ? null : Date.now();
+
+const article = await Article.create({
+  user_id: req.user.id,
+  title,
+  summary,
+  blog_data,
+  article_category,
+  visibility,
+  published_at: pub
+   }); 
+
   console.log(article);
   res.status(201).json({ message: `article ${article.title} is created` });
 });
