@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 
 const authorDetailSchema = mongoose.Schema(
     {
-        author_id: {
+        user_id: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
             ref: 'User',
