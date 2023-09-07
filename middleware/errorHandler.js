@@ -38,9 +38,20 @@ const errorHandler = (err, req, res, next) => {
         message: err.message,
         // stackTrace: err.stack,
       });
+      
+      case constants.NO_CONTENT:
+      res.json({
+        title: "Content Not Exists",
+        message: err.message,
+        // stackTrace: err.stack,
+      });
     default:
       console.log("No Error all good");
-      break;
+      res.status(422).json({
+        title: "Unable to process the request",
+        message: "Request contains semantic errors, and the server can’t process it",
+        // message: err.message,
+    });
   }
 };
 

@@ -4,6 +4,7 @@ const articleCategorySchema = mongoose.Schema(
   {
     category_name: {
       type: String,
+      unique: true,
       required: true,
     },
     category_desc: {
@@ -14,4 +15,4 @@ const articleCategorySchema = mongoose.Schema(
   { timestamps: { createdAt: true, updatedAt: false }, versionKey: false }
 );
 
-module.exports = mongoose.model("articleCategory", articleCategorySchema);
+module.exports = mongoose.model("Article_Category", articleCategorySchema);

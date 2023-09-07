@@ -20,7 +20,7 @@ const authorDetailSchema = mongoose.Schema(
             required: true,
         },
         dob: {
-            type: String,
+            type: Date,
             required: [true, "fill the dob"],
         },
         profession: {
@@ -40,4 +40,4 @@ const authorDetailSchema = mongoose.Schema(
 );
 
 
-module.exports = mongoose.model("authorInfo", authorDetailSchema);
+module.exports = mongoose.model("User_Info", authorDetailSchema);

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const articleCommentsSchema = mongoose.Schema(
   {
-    author_id: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",
@@ -21,4 +21,4 @@ const articleCommentsSchema = mongoose.Schema(
     versionKey: false },
 );
 
-module.exports = mongoose.model("ArticleComments", articleCommentsSchema);
+module.exports = mongoose.model("Article_Comments", articleCommentsSchema);

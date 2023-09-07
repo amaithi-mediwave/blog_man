@@ -2,6 +2,8 @@ const asyncHandler = require("express-async-handler");
 const Article = require("../models/articleModel");
 const ArticleCategory = require("../models/articleCategoryModel")
 
+
+
 //@ Desc Get All Articles
 //@route GET /api/articles
 //@ access Public
@@ -26,7 +28,7 @@ const getUserArticles = asyncHandler(async (req, res) => {
 
 const getUserArticle = asyncHandler(async (req, res) => {
     const user_article = await Article.findById(req.params.id, {user_id:0, __v: 0});
-    console.log(req.params.id)
+    // console.log(req.params.id)
   if (!user_article) {
     res.status(404);
     throw new Error("Article Not Exists");}
@@ -66,7 +68,7 @@ const article = await Article.create({
   published_at: pub
    }); 
 
-  console.log(article);
+  // console.log(article);
   res.status(201).json({ message: `article ${article.title} is created` });
 });
 
@@ -75,7 +77,7 @@ const article = await Article.create({
 //@ access Private
 
 const updateArticle = asyncHandler(async (req, res) => {
-    const { title, summary, blog_data, visibility } = req.body;
+    const { title, summary, blog_data, article_category, visibility } = req.body;
 
   const article = await Article.findById(req.params.id);
   if (!article) {
@@ -88,10 +90,16 @@ const updateArticle = asyncHandler(async (req, res) => {
       "You don't have permission to update the Article posted by another author"
     );
   }
+  var pub = (!visibility === true) ? null : Date.now();
 // console.log(article)
   const updatedArticle = await Article.findByIdAndUpdate(
-    req.params.id,
-    req.body,
+    {_id:req.params.id},
+    {title,
+      summary,
+      blog_data,
+      article_category,
+      visibility,
+      published_at: pub},
     { new: true });
 
   res.status(200).json({
@@ -107,8 +115,8 @@ const updateArticle = asyncHandler(async (req, res) => {
 //@ access Private
 
 const deleteArticle = asyncHandler(async (req, res) => {
-    const article = await Article.findById(req.params.id);
-    console.log(article);
+    const article = await Article.findById({_id: req.params.id});
+    // console.log(article);
     if (!article) {
       res.status(404);
       throw new Error("article Not Found");
@@ -118,7 +126,13 @@ const deleteArticle = asyncHandler(async (req, res) => {
       throw new Error("User don't have the permission to delete other user contacts");
     };
   await Article.findByIdAndDelete(req.params.id);
-    res.status(200).json({message: "Article Deleted", Article: article});
+    res.status(200).json({message: "Article Deleted", Article: {
+      "title": article.title, 
+      "summary": article.summary,
+      "blog_data": article.summary,
+      "article_category": article.article_category,
+      "visibility": article.visibility
+  }});
   });
 
 

@@ -3,12 +3,11 @@ const router = express.Router();
 
 
 const {
-    getAllArticles,
-    getUserArticles,
-    createArticle,
-    getUserArticle,
-    updateArticle,
-    deleteArticle,
+    getComments,
+    // getUserComment,
+    createComment,
+    updateComment,
+    deleteComment
 
 } = require("../controllers/commentsController");
 
@@ -16,16 +15,16 @@ const validateToken = require("../middleware/validateTokenHandler");
 
 // router.use(validateToken)
 
-router.route("/").get(getAllArticles)
+router.route("/:id").get(getComments)
 
-router.post("/", validateToken, createArticle);
+router.post("/:id", validateToken, createComment);
 
-router.get("/user",validateToken, getUserArticles);
+// router.get("/user",validateToken, getUserArticles);
 
-router.get("/user/:id", validateToken, getUserArticle);
+// router.get("/user/:id", validateToken, getUserArticle);
 
-router.put("/user/:id", validateToken, updateArticle);
+router.put("/:id", validateToken, updateComment);
 
-router.delete("/user/:id", validateToken, deleteArticle);
+router.delete("/:id", validateToken, deleteComment);
 
 module.exports = router;

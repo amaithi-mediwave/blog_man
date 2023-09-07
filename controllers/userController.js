@@ -44,7 +44,7 @@ const registerUser = asyncHandler(async (req, res) => {
       
       const token = await token_generator(password, _user);
       // console.log(token);
-      res.status(201).json({ message: "User Created and Loggedin Successfully", token });
+      res.status(201).json({ message: "User Created and Logged-in Successfully", token });
     } else {
     res.status(201).json({
       message: "User Created Successfully",
@@ -118,7 +118,7 @@ const loginUser = asyncHandler(async (req, res) => {
 //@access private
 
 const currentUser = asyncHandler(async (req, res) => {
-  res.json(req.user);
+  res.json(req.user_);
 });
 
 
@@ -136,7 +136,7 @@ async function token_generator(password, _user) {
     // console.log(matching); //true
     const accessToken = jwt.sign(
       {
-        user_: {
+        user: {
           username: _user.username,
           email: _user.email,
           id: _user.id,

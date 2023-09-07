@@ -18,7 +18,11 @@ app.use("/api/user/", require("./routes/userInfoRoutes"));
 
 app.use("/api/articles", require("./routes/articlesRoute"));
 
-// app.use(errorHandler);
+app.use("/api/articles/category", require("./routes/articleCategoryRoute"));
+
+app.use("/api/articles/comments", require('./routes/commentsRoute'));
+
+app.use(errorHandler);
 
 app.listen(port, () => {
     console.log(`Server Running on Port ${port}`);
