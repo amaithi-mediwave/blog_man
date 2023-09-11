@@ -1,28 +1,50 @@
 const express = require('express');
 const dotenv = require('dotenv').config();
-const errorHandler = require("./middleware/errorHandler")
+const errorHandler = require("./src/middleware/errorHandler");
 
-const connect_Db = require("./db_config/db_connection");
+const connectDb = require("./src/config/db");
 
 
-connect_Db();
+connectDb();
 
 const app = express();
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5000;  // Assign PORT for Server listening
 
-app.use(express.json());
-app.use("/api/", require("./routes/baseRoute"));
-app.use("/api/users/", require("./routes/userRoutes"));
-app.use("/api/user/", require("./routes/userInfoRoutes"));
+app.use(express.json());    // JSON parser
 
-app.use("/api/articles", require("./routes/articlesRoute"));
 
-app.use("/api/articles/category", require("./routes/articleCategoryRoute"));
 
-app.use("/api/articles/comments", require('./routes/commentsRoute'));
+//------------------------------------------------------
+//          BASE ROUTES
+//------------------------------------------------------
+app.use("/api/", require("./src/routes/baseRoute"));
 
-app.use(errorHandler);
+//------------------------------------------------------
+//          USER ROUTES
+//------------------------------------------------------
+app.use("/api/users/", require("./src/routes/userRoutes"));
+
+//------------------------------------------------------
+//          ARTICLE ROUTES
+//------------------------------------------------------
+app.use("/api/articles", require("./src/routes/articlesRoute"));
+
+
+//------------------------------------------------------
+//          WRONG API ENDPOINT HANDLER
+//------------------------------------------------------
+app.use('*', require("./src/middleware/wrongApiEndpointHandler"));
+
+
+//------------------------------------------------------
+//          ERROR HANDLER
+//------------------------------------------------------
+// app.use(errorHandler);  // Custom Error Handler [Middleware]
+
+
+
+// Server 
 
 app.listen(port, () => {
     console.log(`Server Running on Port ${port}`);

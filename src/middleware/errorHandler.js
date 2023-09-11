@@ -1,4 +1,15 @@
-const { constants } = require("../status_codes");
+
+
+let constants = {
+  VALIDATION_ERROR: 400,
+  UNAUTHORISED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  SERVER_ERROR: 500,
+  NO_CONTENT: 204,
+};
+
+
 
 const errorHandler = (err, req, res, next) => {
   const statusCode = res.statusCode ? res.statusCode : 500;
@@ -49,7 +60,7 @@ const errorHandler = (err, req, res, next) => {
       console.log("No Error all good");
       res.status(422).json({
         title: "Unable to process the request",
-        message: "Request contains semantic errors, and the server can’t process it",
+        message: "Request Contains Semantic errors, and the Server can’t process it",
         // message: err.message,
     });
   }

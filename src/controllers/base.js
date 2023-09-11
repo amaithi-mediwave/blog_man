@@ -1,10 +1,7 @@
-let today = new Date().toISOString().slice(0, 10)
-
-// console.log(today)
-
-
-
 const asyncHandler = require("express-async-handler");
+
+
+let today = new Date().toISOString().slice(0, 10)
 
 
 //- Description:    Root
@@ -17,6 +14,9 @@ const getRoot = asyncHandler(async (req, res) => {
     })
 });
 
+//---------------------------------------------------------------
+
+
 //- Description:    About
 //@route GET : /api/about
 //@access Public
@@ -28,9 +28,10 @@ const getAbout = asyncHandler(async (req, res) => {
     })
 })
 
+//---------------------------------------------------------------
 
 
-
+// Exporting Modules
 module.exports = {
     getRoot,
     getAbout,
