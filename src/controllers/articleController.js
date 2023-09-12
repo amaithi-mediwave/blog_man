@@ -40,39 +40,10 @@ const getUserArticles = asyncHandler(async (req, res) => {
 
 const getUserArticle = asyncHandler(async (req, res) => {
 
-//   try {
-//     const { id } = req.params.id;
-//     if (!mongoose.Types.ObjectId.isValid(id)) {
-//       res.status(400);
-//       throw new Error("Invalid id"); // validating `id`
-//     };
-//     const user_article = await articleModel.findById(req.params.id, {user_id:0, __v: 0});
-//     if (!user_article) { 
-//       res.status(404); 
-//       throw new Error('No Article is found with the given id.'); };
-    
-//     res.status(200).json({user_article});
-//   } catch (error) {
-//     console.error(error)
-//     // next(error)
-//     response.status(501).json('internal server error')
-//   };
-// });
-
-
-
-
-
-
-//   const { id } = req.params.id;
-// if (!mongoose.Types.ObjectId.isValid(id)) {
-//   res.status(400);
-//   throw new Error("Invalid id"); // validating `id`
-// };
     const user_article = await articleModel.findById(req.params.id, {user_id:0, __v: 0})
     .populate([{path: 'article_category_id', model: 'articleCategory', select: 'category_name -_id' }]);
     
-    
+
   if (!user_article) {
     res.status(404);
     throw new Error("Article Not Exists");}
@@ -90,10 +61,7 @@ const getUserArticle = asyncHandler(async (req, res) => {
 const createArticle = asyncHandler(async (req, res) => {
   const { title, summary, blog_data, article_category, visibility } = req.body;
 
-  // if (!title || !summary || !blog_data || !article_category) {
-  //   res.status(400);
-  //   throw new Error("Fill out all the fields");
-  // }
+  
   const { error } = validator.validateArticle(title, summary, blog_data, article_category, visibility);
   if (error) {
     res.status(403);
@@ -108,14 +76,7 @@ const createArticle = asyncHandler(async (req, res) => {
     throw new Error('wrong category');
   }
   const cate_id = categoryAvailable._id 
-    console.log(cate_id)
 
-//  category_ = await ArticleCategory.findOne({category_name});
-
-//  if(!category_) {
-//   res.status(400);
-//     throw new Error("Fill out the Article Category properly");
-//  }
 // let pub = null;         // var variable = (condition) ? (true block) : (else block)
 
 var pub = (!visibility === true) ? null : Date.now();
@@ -131,7 +92,7 @@ const article = await articleModel.create({
   published_at: pub
    }); 
 
-  // console.log(article);
+  
   res.status(201).json({ message: `article ${article.title} is created` });
 });
 
@@ -265,20 +226,11 @@ const createUpdateArticleCategory = asyncHandler(async (req, res) => {
     throw new Error(`${error}`);
   }
 
-  // if (!category_name || !category_desc) {
-  //   res.status(400);
-    // throw new Error("All Fields are mandatory");
-  // }
-  //   let date = new Date(dob)
-  //   let dat = date.toISOString()
-
   let cate_name = category_name.toLowerCase();
   let update_cate_name = updated_category_name.toLowerCase();
 
   const categoryAvailable = await articleCategoryModel.findOne({ category_name: cate_name });
   const updateCategoryAvailable = await articleCategoryModel.findOne({ category_name: update_cate_name });
-
-// console.log(categoryAvailable)
 
 
   if (categoryAvailable === null && update_category === "false") {
@@ -306,8 +258,6 @@ const createUpdateArticleCategory = asyncHandler(async (req, res) => {
       res.status(400);
     throw new Error(`The Update Category Name '${updated_category_name}' Already Exists, Please provide another name`);
     }
-
-
 
     if (!update_category === true || !updated_category_name || !updated_category_desc) {
       res.status(400);

@@ -37,7 +37,7 @@ if (error) {
 
   // HASH PASSWORD
   const hashedPassword = await bcrypt.hash(password, 10);
-  // console.log("Hashed Password ", hashedPassword);
+  
   const _user = await userModel.create({
     username,
     email,
@@ -48,9 +48,7 @@ if (error) {
 
   if (_user) {
     if(login_after_register === "true") {
-      // console.log("login after register check");
-      // const user = await User.findOne({ email });
-      // const token_secret = process.env.ACCESS_TOKEN_SECRET;
+      
       
       const token = await token_generator(password, _user);
       // console.log(token);
@@ -96,12 +94,7 @@ if (error) {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  // if(!email || !password) {
-  //     res.status(400);
-  //     throw new Error("All Fields are mandatory");
-
-  // }
-
+  
   const { error } = validator.validateLoginUser(email, password);
 if (error) {
   res.status(403);
@@ -110,6 +103,7 @@ if (error) {
 }
 
   const user = await userModel.findOne({ email });
+
   // Compare the password and hashed password
   if(user && (await bcrypt.compare(password, user.password_hash))){
     
@@ -188,10 +182,7 @@ async function token_generator(password, _user) {
 const createUpdateUserInfo = asyncHandler(async (req, res) => {
   const { first_name, last_name, dob, profession, interests, about } = req.body;
 
-  // if (!first_name || !last_name || !dob || !profession || !interests || !about) {
-  //   res.status(400);
-  //   throw new Error("All Fields are mandatory");
-  // } 
+  
 
   const { error } = validator.validateUserInfo(first_name, last_name, dob, profession, interests, about);
   if (error) {
@@ -201,13 +192,11 @@ const createUpdateUserInfo = asyncHandler(async (req, res) => {
   }
 
 
-
-
   let date = new Date(dob)
   let dat = date.toISOString()
   
   const userAvailable = await userInfoModel.findOne({ user_id: req.user.id });
-  // console.log(userAvailable);
+  
   if (!userAvailable) {
     // Adding user info to the DB
     const user = await userInfoModel.create({
@@ -220,7 +209,7 @@ const createUpdateUserInfo = asyncHandler(async (req, res) => {
       about,
     });
 
-    // console.log(`User info Created ${user.first_name}`);
+    
 
     if (user) {
       res.status(201).json({
@@ -247,7 +236,7 @@ const createUpdateUserInfo = asyncHandler(async (req, res) => {
         
       );
 
-      // console.log(`User info Updated for ${updatedInfo.first_name}`);
+     
       res.status(200).json({
         updated_info: {
           name: `${updatedInfo.first_name} ${updatedInfo.last_name}`,
@@ -276,10 +265,10 @@ const currentUserInfo = asyncHandler(async (req, res) => {
   const user_info = await userInfoModel.findOne({ user_id: req.user.id });
   
   if(user_info === null) {
-    // console.log(user_info);
+    
     res.status(204);
     throw new Error("User Info Doesn't Exists Create a New Info");
-    // .json({ message:  });
+    
   } else {
     res.status(200).json({
      User_Info: {

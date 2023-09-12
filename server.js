@@ -32,7 +32,7 @@ app.use("/api/articles", require("./src/routes/articlesRoute"));
 
 
 //------------------------------------------------------
-//          WRONG API ENDPOINT HANDLER
+//          WRONG API ENDPOINT HANDLER [Middleware]
 //------------------------------------------------------
 app.use('*', require("./src/middleware/wrongApiEndpointHandler"));
 
