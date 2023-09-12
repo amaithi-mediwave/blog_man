@@ -7,6 +7,9 @@ const {
 
 
 const jwt = require("jsonwebtoken");
+const validator = require("../validators/userValidator")
+
+
 
 //@desc Register a user
 //@route POST /api/users/register
@@ -14,12 +17,16 @@ const jwt = require("jsonwebtoken");
 
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password, login_after_register } = req.body;
+  
 
   
-  if (!username || !email || !password) {
-    res.status(400);
-    throw new Error("All Fields are mandatory");
-  }
+const { error } = validator.validateRegisterUser(username, email, password, login_after_register);
+if (error) {
+  res.status(403);
+  // console.log(`${error}`);
+  throw new Error(`${error}`);
+}
+  
   const userAvailable = await userModel.findOne({ email });
 
 
@@ -89,11 +96,19 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  if(!email || !password) {
-      res.status(400);
-      throw new Error("All Fields are mandatory");
+  // if(!email || !password) {
+  //     res.status(400);
+  //     throw new Error("All Fields are mandatory");
 
-  }
+  // }
+
+  const { error } = validator.validateLoginUser(email, password);
+if (error) {
+  res.status(403);
+  // console.log(`${error}`);
+  throw new Error(`${error}`);
+}
+
   const user = await userModel.findOne({ email });
   // Compare the password and hashed password
   if(user && (await bcrypt.compare(password, user.password_hash))){
@@ -163,7 +178,7 @@ async function token_generator(password, _user) {
 }
 
 //---------------------------------------------------------------
-        //      USER INFO  - CONTROLLERS
+//              USER INFO  - CONTROLLERS
 //---------------------------------------------------------------
 
 //@desc Create User info
@@ -173,15 +188,26 @@ async function token_generator(password, _user) {
 const createUpdateUserInfo = asyncHandler(async (req, res) => {
   const { first_name, last_name, dob, profession, interests, about } = req.body;
 
-  if (!first_name || !last_name || !dob || !profession || !interests || !about) {
-    res.status(400);
-    throw new Error("All Fields are mandatory");
-  } 
+  // if (!first_name || !last_name || !dob || !profession || !interests || !about) {
+  //   res.status(400);
+  //   throw new Error("All Fields are mandatory");
+  // } 
+
+  const { error } = validator.validateUserInfo(first_name, last_name, dob, profession, interests, about);
+  if (error) {
+    res.status(403);
+    // console.log(`${error}`);
+    throw new Error(`${error}`);
+  }
+
+
+
+
   let date = new Date(dob)
   let dat = date.toISOString()
   
   const userAvailable = await userInfoModel.findOne({ user_id: req.user.id });
-  console.log(userAvailable);
+  // console.log(userAvailable);
   if (!userAvailable) {
     // Adding user info to the DB
     const user = await userInfoModel.create({
@@ -221,7 +247,7 @@ const createUpdateUserInfo = asyncHandler(async (req, res) => {
         
       );
 
-      console.log(`User info Updated for ${updatedInfo.first_name}`);
+      // console.log(`User info Updated for ${updatedInfo.first_name}`);
       res.status(200).json({
         updated_info: {
           name: `${updatedInfo.first_name} ${updatedInfo.last_name}`,
@@ -250,7 +276,7 @@ const currentUserInfo = asyncHandler(async (req, res) => {
   const user_info = await userInfoModel.findOne({ user_id: req.user.id });
   
   if(user_info === null) {
-    console.log(user_info);
+    // console.log(user_info);
     res.status(204);
     throw new Error("User Info Doesn't Exists Create a New Info");
     // .json({ message:  });

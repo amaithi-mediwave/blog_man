@@ -4,6 +4,7 @@ let constants = {
   VALIDATION_ERROR: 400,
   UNAUTHORISED: 401,
   FORBIDDEN: 403,
+
   NOT_FOUND: 404,
   SERVER_ERROR: 500,
   NO_CONTENT: 204,
@@ -38,7 +39,7 @@ const errorHandler = (err, req, res, next) => {
 
     case constants.FORBIDDEN:
       res.json({
-        title: "Forbidden",
+        title: "Forbidden or In-Valid Format",
         message: err.message,
         // stackTrace: err.stack,
       });

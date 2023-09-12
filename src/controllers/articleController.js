@@ -1,6 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const mongoose = require('mongoose');
+const validator = require("../validators/articleValidator");
+
 
 const { articleModel,
   articleCommentsModel,
@@ -13,7 +15,9 @@ const { articleModel,
 //@ access Public
 
 const getAllArticles = asyncHandler(async (req, res) => {
-  const articles = await articleModel.find({ visibility: true}, {user_id:0, __v: 0, created_at:0 ,updated_at:0, }); //exclude fields by using the second parameter of the find method
+  const articles = await articleModel.find({ visibility: true}, {user_id:0, __v: 0, created_at:0 ,updated_at:0, }) //exclude fields by using the second parameter of the find method
+  .populate([{path: 'article_category_id', model: 'articleCategory', select: 'category_name -_id' }]); 
+
   res.status(200).json(articles);
 });
 
@@ -24,7 +28,8 @@ const getAllArticles = asyncHandler(async (req, res) => {
 //@ access Private
 
 const getUserArticles = asyncHandler(async (req, res) => {
-  const user_articles = await articleModel.find({ user_id: req.user.id }, {user_id:0, __v: 0});
+  const user_articles = await articleModel.find({ user_id: req.user.id }, {user_id:0, __v: 0})
+  .populate([{path: 'article_category_id', model: 'articleCategory', select: 'category_name -_id' }]);
   res.status(200).json(user_articles);
 });
 
@@ -64,9 +69,10 @@ const getUserArticle = asyncHandler(async (req, res) => {
 //   res.status(400);
 //   throw new Error("Invalid id"); // validating `id`
 // };
-    const user_article = await articleModel.findById(req.params.id, {user_id:0, __v: 0});
-    // console.log(req.params.id)
-    console.log(user_article);
+    const user_article = await articleModel.findById(req.params.id, {user_id:0, __v: 0})
+    .populate([{path: 'article_category_id', model: 'articleCategory', select: 'category_name -_id' }]);
+    
+    
   if (!user_article) {
     res.status(404);
     throw new Error("Article Not Exists");}
@@ -84,10 +90,26 @@ const getUserArticle = asyncHandler(async (req, res) => {
 const createArticle = asyncHandler(async (req, res) => {
   const { title, summary, blog_data, article_category, visibility } = req.body;
 
-  if (!title || !summary || !blog_data || !article_category) {
-    res.status(400);
-    throw new Error("Fill out all the fields");
+  // if (!title || !summary || !blog_data || !article_category) {
+  //   res.status(400);
+  //   throw new Error("Fill out all the fields");
+  // }
+  const { error } = validator.validateArticle(title, summary, blog_data, article_category, visibility);
+  if (error) {
+    res.status(403);
+    // console.log(`${error}`);
+    throw new Error(`${error}`);
   }
+  let cate_name = article_category.toLowerCase();
+  const categoryAvailable = await articleCategoryModel.findOne({ category_name: cate_name });
+
+  if(!categoryAvailable) {
+    res.status(403);
+    throw new Error('wrong category');
+  }
+  const cate_id = categoryAvailable._id 
+    console.log(cate_id)
+
 //  category_ = await ArticleCategory.findOne({category_name});
 
 //  if(!category_) {
@@ -103,7 +125,8 @@ const article = await articleModel.create({
   title,
   summary,
   blog_data,
-  article_category,
+  // article_category,
+  article_category_id: cate_id,
   visibility,
   published_at: pub
    }); 
@@ -122,6 +145,13 @@ const article = await articleModel.create({
 const updateArticle = asyncHandler(async (req, res) => {
     const { title, summary, blog_data, article_category, visibility } = req.body;
 
+    const { error } = validator.validateArticle(title, summary, blog_data, article_category, visibility);
+  if (error) {
+    res.status(403);
+    // console.log(`${error}`);
+    throw new Error(`${error}`);
+  }
+
   const article = await articleModel.findById(req.params.id);
   if (!article) {
     res.status(404);
@@ -133,17 +163,29 @@ const updateArticle = asyncHandler(async (req, res) => {
       "You don't have permission to update the Article posted by another author"
     );
   }
-  var pub = (!visibility === true) ? null : Date.now();
-// console.log(article)
+  var pub = (!visibility == "true") ? null : Date.now();
+console.log(pub)
+
+let cate_name = article_category.toLowerCase();
+  const categoryAvailable = await articleCategoryModel.findOne({ category_name: cate_name });
+
+  if(!categoryAvailable) {
+    res.status(403);
+    throw new Error('wrong category');
+  }
+  const cate_id = categoryAvailable._id 
+    console.log(cate_id)
+
+
   const updatedArticle = await articleModel.findByIdAndUpdate(
     {_id:req.params.id},
     {title,
       summary,
       blog_data,
-      article_category,
+      article_category_id: cate_id,
       visibility,
       published_at: pub},
-    { new: true });
+    { new: true }).populate([{path: 'article_category_id', model: 'articleCategory', select: 'category_name -_id' }]);
 
   res.status(200).json({
     message: "Article has been updated",
@@ -216,20 +258,32 @@ const createUpdateArticleCategory = asyncHandler(async (req, res) => {
     updated_category_desc,
   } = req.body;
 
-  if (!category_name || !category_desc) {
-    res.status(400);
-    throw new Error("All Fields are mandatory");
+  const { error } = validator.validateArticleCategory(category_name, category_desc, update_category, updated_category_name, updated_category_desc);
+  if (error) {
+    res.status(403);
+    // console.log(`${error}`);
+    throw new Error(`${error}`);
   }
+
+  // if (!category_name || !category_desc) {
+  //   res.status(400);
+    // throw new Error("All Fields are mandatory");
+  // }
   //   let date = new Date(dob)
   //   let dat = date.toISOString()
+
   let cate_name = category_name.toLowerCase();
+  let update_cate_name = updated_category_name.toLowerCase();
 
   const categoryAvailable = await articleCategoryModel.findOne({ category_name: cate_name });
-console.log(categoryAvailable)
+  const updateCategoryAvailable = await articleCategoryModel.findOne({ category_name: update_cate_name });
+
+// console.log(categoryAvailable)
 
 
-  if (categoryAvailable === null && !update_category === true) {
-    // Adding adding category to the DB
+  if (categoryAvailable === null && update_category === "false") {
+
+    // creating new category to the DB
     const category = await articleCategoryModel.create({
         category_name: cate_name,
       category_desc,
@@ -245,21 +299,33 @@ console.log(categoryAvailable)
         },
       });
     }
-  } else if (!categoryAvailable === null && update_category) {
+  } else if (update_category === "true") {
     console.log(categoryAvailable)
+
+    if(updateCategoryAvailable){
+      res.status(400);
+    throw new Error(`The Update Category Name '${updated_category_name}' Already Exists, Please provide another name`);
+    }
+
+
+
     if (!update_category === true || !updated_category_name || !updated_category_desc) {
       res.status(400);
       throw new Error("All category update parameters are mandatory for updating the category");
     }
     const updatedCategory = await articleCategoryModel.findOneAndUpdate(
       { category_name: cate_name },
-      { category_name: updated_category_name, category_desc: updated_category_desc },
+      { category_name: update_cate_name, category_desc: updated_category_desc },
       {
         new: true, // for retriving the newly updated document from the DB
       }
     );
-
+      if (updatedCategory === null){
+        res.status(404);
+    throw new Error(`Category ${category_name} is Not Exists and Can't Update the Category. turn the update_category to 'false' to create a new category`);
+      }
     console.log(`Updated Category ${updatedCategory.category_name}`);
+    // console.log(updatedCategory)
     res.status(200).json({
       updated_category: {
         category_name: updatedCategory.category_name,
@@ -267,14 +333,14 @@ console.log(categoryAvailable)
       },
     });}
 
-    else if (categoryAvailable === null) {
-        res.status(404);
-    throw new Error(`Category ${category_name} is Not Exists and Can't Update the Category`);
-    }
+    // else if (categoryAvailable === null ) {
+    //     res.status(404);
+    // throw new Error(`Category ${category_name} is Not Exists and Can't Update the Category`);
+    // }
 
   else {
     res.status(400);
-    throw new Error(`Category ${category_name} Already Exists and update_category parameters is missing make sure you gave it properly`);
+    throw new Error(`Category ${category_name} Already Exists and update_category parameter is not properly given, make sure you gave it properly`);
   }
 });
 
@@ -324,8 +390,8 @@ const getComments = asyncHandler(async (req, res) => {
   //   { _id:0, __v: 0, created_at: 0, updated_at: 0 }).populate('user_id', {'username':1, _id :0}); //exclude fields by using the second parameter of the find method
 
     const comments = await articleCommentsModel.find({article_id: req.params.id},
-      { __v: 0, created_at: 0, updatedAt: 0 }).populate([{path: 'user_id', model: 'User', select: 'username -_id' },
-                                                                {path: 'article_id', model: 'Article', select: 'title -_id'}]
+      { __v: 0, created_at: 0, updatedAt: 0 }).populate([{path: 'user_id', model: 'user', select: 'username -_id' },
+                                                                {path: 'article_id', model: 'article', select: 'title -_id'}]
       ); //exclude fields by using the second parameter of the find method
   
 

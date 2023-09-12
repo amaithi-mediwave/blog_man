@@ -10,7 +10,7 @@ const articleSchema = mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: "user",
     },
     title: {
       type: String,
@@ -24,15 +24,16 @@ const articleSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    article_category: {
-      type: String,
-      required: true,
-    },
-    // article_category_id: {
-    //   type: mongoose.Schema.Types.ObjectId,
+    // article_category: {
+    //   type: String,
     //   required: true,
-    //   ref: "articleCategory",
     // },
+
+    article_category_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "articleCategory",
+    },
 
     visibility: {
         type: Boolean,
@@ -62,12 +63,12 @@ const articleCommentsSchema = mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: "user",
     },
     article_id: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: "Article",
+        ref: "article",
     },
     comment_data: {
       type: String,
