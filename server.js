@@ -40,7 +40,7 @@ app.use('*', require("./src/middleware/wrongApiEndpointHandler"));
 //------------------------------------------------------
 //          ERROR HANDLER
 //------------------------------------------------------
-// app.use(errorHandler);  // Custom Error Handler [Middleware]
+app.use(errorHandler);  // Custom Error Handler [Middleware]
 
 
 

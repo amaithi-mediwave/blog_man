@@ -5,33 +5,21 @@ const joi = require("joi");
 //---------------------------------------------------------------
 
 function validateRegisterUser(username, email, password, login_after_register) {
-  
-    let user = { username, email, password, login_after_register };
+  let user = { username, email, password, login_after_register };
 
-  const joiSchema = joi.object(
-    
-    {
+  const joiSchema = joi
+    .object({
+      username: joi.string().min(5).max(30).required(),
 
-      username:     joi.string()
-                        .min(5)
-                        .max(30)
-                        .required(),
+      email: joi.string().email().min(5).max(20).required(),
 
-      email:        joi.string()
-                        .email()
-                        .min(5)
-                        .max(20)
-                        .required(),
+      password: joi.string().min(8).max(20).required(),
 
-      password:     joi.string()
-                        .min(8)
-                        .max(20)
-                        .required(),
-
-      login_after_register: joi.string()
-                                .valid("true")
-                                .valid("false")
-                                .optional(),
+      login_after_register: joi
+        .string()
+        .valid("true")
+        .valid("false")
+        .optional(),
     })
     .options({ abortEarly: true });
 

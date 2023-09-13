@@ -9,9 +9,7 @@ let today = new Date().toISOString().slice(0, 10)
 //@access Public
 
 const getRoot = asyncHandler(async (req, res) => {
-    res.status(200).json({
-        message: "Welcome to Blog Man ..!"
-    })
+    res.status(200).json({message: "Welcome to Blog Man ..!"})
 });
 
 //---------------------------------------------------------------

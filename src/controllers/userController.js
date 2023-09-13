@@ -8,7 +8,10 @@ const {
 
 const jwt = require("jsonwebtoken");
 const validator = require("../validators/userValidator")
+const {messages} = require("../utils/responseMessages")
+const tokenGenerator = require("../utils/tokenGenerator")
 
+const userService = require("../services/userServices")
 
 
 //@desc Register a user
@@ -18,15 +21,17 @@ const validator = require("../validators/userValidator")
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password, login_after_register } = req.body;
   
-
-  
 const { error } = validator.validateRegisterUser(username, email, password, login_after_register);
-if (error) {
-  res.status(403);
-  // console.log(`${error}`);
-  throw new Error(`${error}`);
-}
-  
+if (error) { res.status(403); throw new Error(`${error}`);};
+
+// const response = await userService.userRegistration(username, email, password, login_after_register);
+// if (response.length == 1){
+//   res.status(response[0]['statuscode']);
+//   res.json(response[0]['message']);
+// }
+// console.log(response);
+
+  /*
   const userAvailable = await userModel.findOne({ email });
 
 
@@ -63,6 +68,30 @@ if (error) {
     res.status(400);
     throw new Error("User data is not valid");
   }
+  */
+  const userAvailable = await userService.findUser(email);
+
+  if (userAvailable) { res.status(400); throw new Error(messages.user.mes_1.message); };
+
+  // HASH PASSWORD
+  const hashedPassword = await bcrypt.hash(password, 10);
+  
+  const user = await userService.createUser(username, email, hashedPassword);
+
+  
+  if (user) {
+    if(login_after_register === "true") {
+      
+      const token = await tokenGenerator.generateToken(password, user);
+      res.status(201).json({ message: messages.user.mes_3.message, token });
+    } else {
+      res.status(201).json({ message: messages.user.mes_4.message })
+  };
+    
+  } else {
+    res.status(400);
+    throw new Error(messages.user.mes_2.message);
+  }
 });
 
 //---------------------------------------------------------------
@@ -96,13 +125,51 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   
   const { error } = validator.validateLoginUser(email, password);
-if (error) {
-  res.status(403);
-  // console.log(`${error}`);
-  throw new Error(`${error}`);
-}
+if (error) { res.status(403); throw new Error(`${error}`);}
 
-  const user = await userModel.findOne({ email });
+  const user = await userService.findUser(email);
+  if (!user) { res.status(400); throw new Error(messages.user.mes_6.message); };
+
+  const accessToken = await tokenGenerator.generateToken(password, user);
+
+  if (accessToken) {
+    res.status(200).json({message: messages.user.mes_5.message, accessToken })
+  }
+  else {
+    res.status(401); throw new Error(messages.user.mes_7.message);
+  }
+});
+
+//   // Compare the password and hashed password
+//   if(user && (await bcrypt.compare(password, user.password_hash))){
+    
+//       const accessToken = jwt.sign({
+//           user: {
+//               username: user.username,
+//               email: user.email,
+//               id: user.id,
+//           },
+//       }, process.env.ACCESS_TOKEN_SECRET, {
+//           expiresIn: "15m"
+//       });
+//       res.status(200).json({message: "Login Successful",
+//           accessToken 
+//       });
+//   }else {
+//       res.status(401)
+//       throw new Error("email or password is not valid");
+//   }
+// });
+
+
+/*  -- WORKING FINE -- 
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  
+  const { error } = validator.validateLoginUser(email, password);
+if (error) { res.status(403); throw new Error(`${error}`);}
+
+  const user = await userService.findUser(email);
 
   // Compare the password and hashed password
   if(user && (await bcrypt.compare(password, user.password_hash))){
@@ -124,6 +191,8 @@ if (error) {
       throw new Error("email or password is not valid");
   }
 });
+*/
+
 
 //---------------------------------------------------------------
 
@@ -134,7 +203,7 @@ if (error) {
 //@access private
 
 const currentUser = asyncHandler(async (req, res) => {
-  res.json(req.user_);
+  res.json(req.user);
 });
 
 
@@ -144,7 +213,7 @@ const currentUser = asyncHandler(async (req, res) => {
 
 // @Desc Token generator funtion
 
-
+/*
 async function token_generator(password, _user) {
   
 
@@ -170,6 +239,7 @@ async function token_generator(password, _user) {
     return accessToken;
   }
 }
+*/
 
 //---------------------------------------------------------------
 //              USER INFO  - CONTROLLERS
@@ -185,12 +255,113 @@ const createUpdateUserInfo = asyncHandler(async (req, res) => {
   
 
   const { error } = validator.validateUserInfo(first_name, last_name, dob, profession, interests, about);
-  if (error) {
-    res.status(403);
-    // console.log(`${error}`);
-    throw new Error(`${error}`);
-  }
+  if (error) {res.status(403); throw new Error(`${error}`);};
 
+  let date = new Date(dob)
+  let dat = date.toISOString()
+  
+  const userInfoAvailable = await userService.findUserInfo(req.user.id);
+
+  if (!userInfoAvailable) {
+    userInfo = await userService.createUserInfo(req.user.id, first_name, last_name, dob, profession, interests,  about);
+
+
+    if (userInfo) {res.status(201).json({User_Info_created: {
+          name: `${userInfo.first_name} ${userInfo.last_name}`,
+          dob: userInfo.dob,
+          profession: userInfo.profession,
+          interests: userInfo.interests,
+          about: userInfo.about,
+        },
+      });
+    }
+  } else {
+    try {
+      const updatedInfo = await userService.updateUserInfo(req.user.id, first_name, last_name, dat, profession, interests,  about);
+      res.status(200).json({
+        updated_info: {
+          name: `${updatedInfo.first_name} ${updatedInfo.last_name}`,
+          dob: updatedInfo.dob,
+          profession: updatedInfo.profession,
+          interests: updatedInfo.interests,
+          about: updatedInfo.about}});
+    } catch {
+      res.status(400);
+      throw new Error(messages.user.mes_2);
+    }
+  }
+});
+
+
+/*
+
+  // const userAvailable = await userInfoModel.findOne({ user_id: req.user.id });
+  
+  if (!userAvailable) {
+    // Adding user info to the DB
+    const user = await userInfoModel.create({
+      user_id: req.user.id,
+      first_name,
+      last_name,
+      dob: dat,
+      profession,
+      interests,
+      about,
+    });
+
+    
+
+    if (user) {
+      res.status(201).json({
+       User_Info_created: {
+          name: `${user.first_name} ${user.last_name}`,
+          dob: user.dob,
+          profession: user.profession,
+          interests: user.interests,
+          about: user.about,
+        },
+      });
+    }
+  } else {
+    try {
+      const updatedInfo = await userInfoModel.findOneAndUpdate(
+        { user_id: req.user.id },
+        {first_name,
+          last_name,
+          dob: new Date(dob),
+          profession,
+          interests,
+          about},
+        { new: true } // -> for retriving the newly updated document from the DB
+        
+      );
+
+     
+      res.status(200).json({
+        updated_info: {
+          name: `${updatedInfo.first_name} ${updatedInfo.last_name}`,
+          dob: updatedInfo.dob,
+          profession: updatedInfo.profession,
+          interests: updatedInfo.interests,
+          about: updatedInfo.about,
+        },
+      });
+    } catch {
+      res.status(400);
+      throw new Error("User data is not valid");
+    }
+  }
+});
+*/
+
+/*
+const createUpdateUserInfo = asyncHandler(async (req, res) => {
+  const { first_name, last_name, dob, profession, interests, about } = req.body;
+
+  
+
+  const { error } = validator.validateUserInfo(first_name, last_name, dob, profession, interests, about);
+  if (error) {res.status(403); throw new Error(`${error}`);};
 
   let date = new Date(dob)
   let dat = date.toISOString()
@@ -252,6 +423,7 @@ const createUpdateUserInfo = asyncHandler(async (req, res) => {
     }
   }
 });
+*/
 
 //---------------------------------------------------------------
 
@@ -262,21 +434,19 @@ const createUpdateUserInfo = asyncHandler(async (req, res) => {
 
 const currentUserInfo = asyncHandler(async (req, res) => {
   
-  const user_info = await userInfoModel.findOne({ user_id: req.user.id });
+  const userInfo = await userService.findUserInfo(req.user.id);
   
-  if(user_info === null) {
-    
-    res.status(204);
-    throw new Error("User Info Doesn't Exists Create a New Info");
+  if(!userInfo) { 
+    res.status(204); throw new Error(messages.user.mes_8);
     
   } else {
     res.status(200).json({
      User_Info: {
-        name: `${user_info.first_name} ${user_info.last_name}`,
-        dob: user_info.dob,
-        profession: user_info.profession,
-        interests: user_info.interests,
-        about: user_info.about,
+        name: `${userInfo.first_name} ${userInfo.last_name}`,
+        dob: userInfo.dob,
+        profession: userInfo.profession,
+        interests: userInfo.interests,
+        about: userInfo.about,
       },
     });
   }

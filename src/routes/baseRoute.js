@@ -6,6 +6,11 @@ const {
     getAbout,
 } = require("../controllers/base");
 
+
+
+//------------------------------------------------------
+//          BASE ROUTES
+//------------------------------------------------------
 router.route("/").get(getRoot)
 router.route("/about").get(getAbout)
 

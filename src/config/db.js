@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 
-// The Following Async function will establish the connection between the server and the MongoDB Atlas
 
+//------------------------------------------------------
+//          DB CONNECTOR
+//------------------------------------------------------
 
 const connectDb = async () => {
     try {

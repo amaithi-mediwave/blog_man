@@ -2,7 +2,14 @@ const express = require("express");
 const router = express.Router();
 
 
-router.route("/").get(endPointHandler).post(endPointHandler).put(endPointHandler).delete(endPointHandler)
+//------------------------------------------------------
+//          WRONG API ENDPOINT ROUTE & HANDLER
+//------------------------------------------------------
+router.route("/")
+            .get(endPointHandler)
+            .post(endPointHandler)
+            .put(endPointHandler)
+            .delete(endPointHandler);
 
 
 
