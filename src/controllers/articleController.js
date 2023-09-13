@@ -7,12 +7,9 @@ const { messages } = require("../utils/responseMessages");
 
 articleService = require("../services/articleServices");
 
-// const { articleModel,
-//   articleCommentsModel,
-//   articleCategoryModel} = require("../models/articleModel");
-
-
-
+//------------------------------------------------------
+//          ARTICLE ROUTES
+//------------------------------------------------------
 
 //@ Desc Get All Articles
 //@route GET /api/articles
@@ -30,8 +27,6 @@ const getAllArticles = asyncHandler(async (req, res) => {
 //@ access Private
 
 const getUserArticles = asyncHandler(async (req, res) => {
-  // const user_articles = await articleModel.find({ user_id: req.user.id }, {user_id:0, __v: 0})
-  // .populate([{path: 'article_category_id', model: 'articleCategory', select: 'category_name -_id' }]);
 
   const userArticles = await articleService.findUserArticles(req.user.id);
 
@@ -45,8 +40,6 @@ const getUserArticles = asyncHandler(async (req, res) => {
 
 const getUserArticle = asyncHandler(async (req, res) => {
 
-    // const user_article = await articleModel.findById(req.params.id, {user_id:0, __v: 0})
-    // .populate([{path: 'article_category_id', model: 'articleCategory', select: 'category_name -_id' }]);
     
     const userArticle = await articleService.findUserOneArticle(req.params.id);    
 
@@ -70,7 +63,7 @@ const createArticle = asyncHandler(async (req, res) => {
   if (error) { res.status(403); throw new Error(`${error}`);};
 
   let cate_name = article_category.toLowerCase();
-  // const categoryAvailable = await articleCategoryModel.findOne({ category_name: cate_name });
+
   const categoryAvailable = await articleService.findCategory(cate_name);
 
   if(!categoryAvailable) {res.status(403); throw new Error(`${article_category} - ${messages.article.mes_2}`);}
@@ -81,17 +74,6 @@ const createArticle = asyncHandler(async (req, res) => {
 
 var pub = (!visibility === true) ? null : Date.now();
 
-// const article = await articleModel.create({
-//   user_id: req.user.id,
-//   title,
-//   summary,
-//   blog_data,
-//   // article_category,
-//   article_category_id: cate_id,
-//   visibility,
-//   published_at: pub
-//    }); 
-
 const newArticle = await articleService.createArticle(req.user.id, title, summary, blog_data, cate_id, visibility, pub);
 console.log(newArticle);
 if (newArticle) {
@@ -100,8 +82,6 @@ if (newArticle) {
 else {
   res.status(400); throw new Error(messages.article.mes_3);
 }
-  
-  
 });
 
 //---------------------------------------------------------------
@@ -140,17 +120,6 @@ let cate_name = article_category.toLowerCase();
 
   else {res.status(400); throw new Error(messages.article.mes_7);}
 
-  // const updatedArticle = await articleModel.findByIdAndUpdate(
-  //   {_id:req.params.id},
-  //   {title,
-  //     summary,
-  //     blog_data,
-  //     article_category_id: cate_id,
-  //     visibility,
-  //     published_at: pub},
-  //   { new: true }).populate([{path: 'article_category_id', model: 'articleCategory', select: 'category_name -_id' }]);
-
-  
 });
 
 
@@ -169,22 +138,7 @@ const deleteArticle = asyncHandler(async (req, res) => {
 
   if (article.user_id.toString() !== req.user.id.toString()) { res.status(403); throw new Error(messages.article.mes_5);}
 
-  
-  
-  
-  
-  // const article = await articleModel.findById({_id: req.params.id});
-    
-  //   if (!article) {
-  //     res.status(404);
-  //     throw new Error("article Not Found");
-  //   }
-  //   if(article.user_id.toString() !== req.user.id) {
-  //     res.status(403);
-  //     throw new Error("User don't have the permission to delete other user contacts");
-  //   };
   const deletedArticle = await articleService.deleteOneArticle(req.params.id);
-  // await articleModel.findByIdAndDelete(req.params.id);
 
   if(deletedArticle) {
     res.status(200).json({message: messages.article.mes_8, Article: {
@@ -215,17 +169,12 @@ const getAllArticleCategories = asyncHandler(async (req, res) => {
 
   const categories = await articleService.findAllCategories();
 
-  // const categories = await articleCategoryModel.find(
-    // {},
-    // { _id:0, __v: 0, created_at: 0, updated_at: 0 }
-  // ); //exclude fields by using the second parameter of the find method
+ 
   if (categories) {
     res.status(200).json(categories);
   } else {
     res.status(400); throw new Error(messages.article.mes_10);
   }
-  
-  
   
 });
 
@@ -252,23 +201,14 @@ const createUpdateArticleCategory = asyncHandler(async (req, res) => {
   let cate_name = category_name.toLowerCase();
   let update_cate_name = updated_category_name.toLowerCase();
 
-  // const categoryAvailable = await articleCategoryModel.findOne({ category_name: cate_name });
-  // const updateCategoryAvailable = await articleCategoryModel.findOne({ category_name: update_cate_name });
-
   const categoryAvailable = await articleService.findCategory(cate_name);
   const updateCategoryAvailable = await articleService.findCategory(update_cate_name);
 
-  if(!categoryAvailable){res.status(400); throw new Error(`${category_name}' - ${messages.article.mes_13}`); }
+  if(!categoryAvailable && update_category==="true"){res.status(400); throw new Error(`${category_name}' - ${messages.article.mes_13}`); }
 
   if (categoryAvailable === null && update_category === "false") {
 
-    // creating new category to the DB
-    // const category = await articleCategoryModel.create({
-    //     category_name: cate_name,
-    //   category_desc,
-    // });
     category = await articleService.createCategory(cate_name, category_desc);
-    // console.log(`Category Created ${category.category_name}`);
 
     if (category) {
       res.status(201).json({
@@ -279,48 +219,23 @@ const createUpdateArticleCategory = asyncHandler(async (req, res) => {
       });
     }
   } else if (update_category === "true") {
-    // console.log(categoryAvailable)
-
-    
+  
 
     if(updateCategoryAvailable){
       res.status(400);
     throw new Error(`${updated_category_name}' - ${messages.article.mes_11}`); }
 
-    // if (!update_category === true || !updated_category_name || !updated_category_desc) {
-    //   res.status(400);
-    //   throw new Error("All category update parameters are mandatory for updating the category");
-    // }
-    // const updatedCategory = await articleCategoryModel.findOneAndUpdate(
-    //   { category_name: cate_name },
-    //   { category_name: update_cate_name, category_desc: updated_category_desc },
-    //   {
-    //     new: true, // for retriving the newly updated document from the DB
-    //   }
-    // );
-
     const updatedCategory = await articleService.updateCategory(cate_name, update_cate_name, updated_category_desc);
 
       if (!updatedCategory){res.status(400);  throw new Error(`${category_name} ${messages.article.mes_12}`);
       }
-    // console.log(`Updated Category ${updatedCategory.category_name}`);
-    // console.log(updatedCategory)
+    
     res.status(200).json({
       updated_category: {
         category_name: updatedCategory.category_name,
         category_desc: updatedCategory.category_desc,
       },
     });}
-
-    // else if (categoryAvailable === null ) {
-    //     res.status(404);
-    // throw new Error(`Category ${category_name} is Not Exists and Can't Update the Category`);
-    // }
-
-  // else {
-  //   res.status(400);
-  //   throw new Error(`Category ${category_name} Already Exists and update_category parameter is not properly given, make sure you gave it properly`);
-  // }
 });
 
 //---------------------------------------------------------------
@@ -365,13 +280,7 @@ const createUpdateArticleCategory = asyncHandler(async (req, res) => {
 //@ access Public
 
 const getComments = asyncHandler(async (req, res) => {
-  // const comments = await Article_Comments.find({article_id: req.params.id},
-  //   { _id:0, __v: 0, created_at: 0, updated_at: 0 }).populate('user_id', {'username':1, _id :0}); //exclude fields by using the second parameter of the find method
-
-    // const comments = await articleCommentsModel.find({article_id: req.params.id},
-    //   { __v: 0, created_at: 0, updatedAt: 0 }).populate([{path: 'user_id', model: 'user', select: 'username -_id' },
-    //                                                             {path: 'article_id', model: 'article', select: 'title -_id'}]
-    //   ); //exclude fields by using the second parameter of the find method
+ 
   const comments = await articleService.findComments(req.params.id);
 
   res.status(200).json(comments);
@@ -390,19 +299,13 @@ const createComment = asyncHandler(async (req, res) => {
     const { comment } = req.body;
   
     if (!comment) {res.status(400); throw new Error(messages.comment.mes_1);}
-  
-    // const new_comment = await articleCommentsModel.create({
-    //     user_id: req.user.id,
-    //     article_id: req.params.id,
-    //     comment_data: comment,
-    //   });
 
     const newComment = await articleService.createComment(req.user.id, req.params.id, comment)
       
     if(!newComment) {res.status(400);  throw new Error(messages.comment.mes_2);}
 
     else{
-      // console.log(new_comment);
+      
     res.status(201).json({ message: messages.comment.mes_3});
   }});
   
@@ -418,7 +321,7 @@ const updateComment = asyncHandler(async (req, res) => {
     const { comment_data } = req.body;
     if (!comment_data) {res.status(400); throw new Error(messages.comment.mes_1);}
 
-  // const comment = await articleCommentsModel.findById({_id: req.params.id});
+ 
   const comment = await articleService.findComment(req.params.id);
   
   if (!comment) {res.status(404); throw new Error(messages.comment.mes_4);}
@@ -426,13 +329,6 @@ const updateComment = asyncHandler(async (req, res) => {
   if (comment.user_id.toString() !== req.user.id) {
     res.status(403);
     throw new Error(messages.comment.mes_5);}
-
-
-  // const updatedcomment = await articleCommentsModel.findByIdAndUpdate(
-  //   {_id:req.params.id},
-  //   {comment_data: comment_data},
-  //   { new: true });
-  //   console.log(updatedcomment)
 
   const updatedComment = await articleService.updateComment(req.params.id, comment_data);
     if(!updatedComment) {res.status(400);  throw new Error(messages.comment.mes_6);}
@@ -462,24 +358,10 @@ const deleteComment = asyncHandler(async (req, res) => {
     res.status(403);
     throw new Error(messages.comment.mes_10);}
 
-  // const comment = await articleCommentsModel.findById(req.params.id);
-  // console.log(comment);
-  // if (!comment) {
-  //   res.status(404);
-  //   throw new Error("Comment Not Found");
-  // }
-  // if(comment.user_id.toString() !== req.user.id) {
-  //   res.status(403);
-  //   throw new Error("User don't have the permission to delete other users Comment");
-  // };
-// await articleCommentsModel.findByIdAndDelete(req.params.id);
 const delComment = await articleService.deleteComment(req.params.id);
 if(!delComment) {res.status(400);  throw new Error(messages.comment.mes_8);}
     else {
       res.status(200).json({message: messages.comment.mes_9, Deleted_comment: delComment.comment_data});}
-
-
- 
 });
 
 //--------------------------------------------------------------
@@ -511,7 +393,7 @@ module.exports = {
 
 
 
-// ------------------ REFERENCE POPULATE
+// ------------------ REFERENCE POPULATE --------------------
 
 // Project.find(query)
 //     .populate({ 

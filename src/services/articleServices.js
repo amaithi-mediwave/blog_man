@@ -139,8 +139,6 @@ const updateCategory = async(cate_name, update_cate_name, updated_category_desc)
 }
 
 
-
-
 //------------------------------------------------------
 //          FIND ALL COMMENTS OF AN ARTICLE
 //------------------------------------------------------

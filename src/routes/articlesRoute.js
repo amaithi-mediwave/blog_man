@@ -27,7 +27,7 @@ const validateToken = require("../utils/validateToken");
 
 
 //------------------------------------------------------
-//ARTICLE ROUTES
+//          ARTICLE ROUTES
 //------------------------------------------------------
 
 router.route("/").get(getAllArticles)
@@ -67,23 +67,11 @@ router.put("/comments/:id", validateToken, updateComment);
 router.delete("/comments/:id", validateToken, deleteComment);
 
 
-//------------------------------------------------------
-//          ARTICLE CATEGORY ROUTES
-//------------------------------------------------------
-
-router.get("/category", getAllArticleCategories);
-
-router.post("/category", validateToken, createUpdateArticleCategory);
 
 
 
 
-
-
-
-
-
-// export Router
+// MODULE EXPORTS
 module.exports = router;
 
 
