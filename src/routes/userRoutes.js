@@ -8,7 +8,7 @@ const { registerUser,
     currentUserInfo } = require("../controllers/userController")
 
 
-const validateToken = require("../utils/validateToken")
+const validateToken = require("../middleware/validateToken")
 
 
 //------------------------------------------------------

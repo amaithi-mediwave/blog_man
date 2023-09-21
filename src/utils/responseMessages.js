@@ -32,6 +32,7 @@ const messages = {
         mes_11: "The Given Update Category is Already Exists please provide a different Name",
         mes_12: "Unable to Update the Category Try After Sometime.",
         mes_13: "The Given Category is Not Exists please provide a Valid Category Name",
+        mes_14: "The Given Category is Already Exists and update category is set to false, please provide a Valid Category Name",
 
     },
 

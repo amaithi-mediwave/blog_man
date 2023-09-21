@@ -20,7 +20,7 @@ const {
 
 } = require("../controllers/articleController");
 
-const validateToken = require("../utils/validateToken");
+const validateToken = require("../middleware/validateToken");
 
 // router.use(validateToken)
 

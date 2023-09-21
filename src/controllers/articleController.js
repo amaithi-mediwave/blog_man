@@ -206,6 +206,10 @@ const createUpdateArticleCategory = asyncHandler(async (req, res) => {
 
   if(!categoryAvailable && update_category==="true"){res.status(400); throw new Error(`${category_name}' - ${messages.article.mes_13}`); }
 
+  if(categoryAvailable && update_category==="false"){res.status(400); throw new Error(`${category_name}' - ${messages.article.mes_14}`); }
+
+
+
   if (categoryAvailable === null && update_category === "false") {
 
     category = await articleService.createCategory(cate_name, category_desc);
