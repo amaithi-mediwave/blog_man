@@ -4,8 +4,8 @@ const router = express.Router();
 const {
     getAllArticles,
     getSingleArticle,
-    // getUserArticle,
     getUserArticles,
+
     createArticle,
     updateArticle,
     deleteArticle,
@@ -19,44 +19,32 @@ const {
     // getUserComment,
     deleteComment,
 
-} = require("../controllers/articleController");
+} = require("../../controllers/v2/articleController");
 
-const validateToken = require("../middleware/validateToken");
-
-// router.use(validateToken)
-
-
+let control = require("../../controllers/index")
 
 //------------------------------------------------------
 //          ARTICLE ROUTES
 //------------------------------------------------------
 
-router.route("/").get(getAllArticles)
 
+router.get("/", control.v2_article.getAllArticles);
 // router.route("/:id").get(getSingleArticle);
 // router.get("/:id", getSingleArticle) //-- Culprit
 
-router.post("/", createArticle);
+router.post("/", control.v2_article.createArticle);
 
-// router.post("/", validateToken, createArticle); - FOR REST API
+router.put("/:id", control.v2_article.updateArticle);
 
-router.get("/user", validateToken, getUserArticles);
-
-// router.get("/user/:id", validateToken, getUserArticle);
-
-router.put("/user/:id", validateToken, updateArticle);
-router.put("/:id", updateArticle);
-
-
-router.delete("/user/:id", validateToken, deleteArticle);
+router.delete("/:id", control.v2_article.deleteArticle);
 
 //------------------------------------------------------
 //          ARTICLE CATEGORY ROUTES
 //------------------------------------------------------
 
-router.get("/category", getAllArticleCategories);
+router.get("/category", control.v2_article.getAllArticleCategories);
 
-router.post("/category", validateToken, createUpdateArticleCategory);
+router.post("/category", control.v2_article.createUpdateArticleCategory);
 
 //------------------------------------------------------
 //          ARTICLE COMMENTS ROUTES
@@ -64,22 +52,22 @@ router.post("/category", validateToken, createUpdateArticleCategory);
 
 router.route("/comments/:id").get(getComments)
 
-router.post("/comments/:id", validateToken, createComment);
+router.post("/comments/:id", createComment);
 
-router.get("/user", validateToken, getUserArticles);
+
 
 // router.get("/user/:id", validateToken, getUserArticle);
 
-router.put("/comments/:id", validateToken, updateComment);
+router.put("/comments/:id", updateComment);
 
-router.delete("/comments/:id", validateToken, deleteComment);
+router.delete("/comments/:id", deleteComment);
 
 
 
 
 // V2 API
-router.get("/:id", getSingleArticle);
-
+router.get("/:id", control.v2_article.getSingleArticle);
+router.get("/user/:id", control.v2_article.getUserArticles);
 
 
 // MODULE EXPORTS

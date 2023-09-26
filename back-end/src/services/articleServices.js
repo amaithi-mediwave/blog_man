@@ -49,13 +49,13 @@ const findUserOneArticle = async (id) => {
     return userOneArticle
 };
 
-// const findOneArticle = async (id) => {
-//     const oneArticle = await articleModel.findById({_id: id});
-//         // .populate([{ path: 'article_category_id', model: 'articleCategory' },
-//         // { path: 'user_id', model: 'user', select: 'username' }]);
+const findOneArticle = async (id) => {
+    const oneArticle = await articleModel.findById(id)
+        .populate([{ path: 'article_category_id', model: 'articleCategory' },
+        { path: 'user_id', model: 'user', select: 'username' }]);
 
-//     return oneArticle
-// };
+    return oneArticle
+};
 
 //------------------------------------------------------
 //          CREATE A NEW ARTICLE
@@ -154,7 +154,7 @@ const updateCategory = async (cate_name, update_cate_name, updated_category_desc
 //------------------------------------------------------
 const findComments = async (id) => {
     const comments = await articleCommentsModel.find({ article_id: id },
-        { __v: 0, created_at: 0, updatedAt: 0 }).populate([{ path: 'user_id', model: 'user', select: 'username -_id' },
+        { __v: 0, created_at: 0, updatedAt: 0 }).populate([{ path: 'user_id', model: 'user', select: 'username _id' },
         { path: 'article_id', model: 'article', select: 'title -_id' }]
         );
     return comments
@@ -205,7 +205,7 @@ module.exports = {
     findArticles,
     findUserArticles,
     findUserOneArticle,
-    // findOneArticle,
+    findOneArticle,
     createArticle,
     updateOneArticle,
     deleteOneArticle,

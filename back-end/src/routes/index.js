@@ -11,15 +11,18 @@ function init(app) {
     app.use("/api/", require("./baseRoute"));
 
     //------------------------------------------------------
-    //          USER ROUTES
+    //        V1  USER & ARTICLE ROUTES - REST API
     //------------------------------------------------------
-    app.use("/api/users/", require("./userRoutes"));
+    app.use("/api/users/", require("./v1/userRoutes"));
+    app.use("/api/articles", require("./v1/articlesRoute"));
+
 
     //------------------------------------------------------
-    //          ARTICLE ROUTES
+    //        V2  USER & ARTICLE ROUTES - REACT
     //------------------------------------------------------
-    app.use("/api/articles", require("./articlesRoute"));
 
+    app.use("/api/v2/users", require("./v2/userRoutes"));
+    app.use("/api/v2/articles", require("./v2/articlesRoute"));
 
     //------------------------------------------------------
     //          WRONG API ENDPOINT HANDLER [Middleware]

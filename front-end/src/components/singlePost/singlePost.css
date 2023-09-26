@@ -64,6 +64,47 @@
   color: #b39656;
 }
 
+
+.singlePostSummary {
+  color: #666;
+  font-size: 18px;
+  line-height: 25px;
+}
+
+.singlePostSummary::first-letter {
+  margin-left: 20px;
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.singlePostSummaryInput {
+  border: none;
+  color: #666;
+  font-size: 18px;
+  line-height: 25px;
+  padding-bottom: 5px;
+  grid-auto-rows: auto;
+}
+
+.singlePostSummaryInput:focus {
+  outline: none;
+}
+
+
+.Buttons {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+}
+
+
+
+
+
+
+
+
+
 .singlePostDesc {
   color: #666;
   font-size: 18px;
@@ -81,11 +122,13 @@
   color: #666;
   font-size: 18px;
   line-height: 25px;
+  
 }
 
 .singlePostDescInput:focus {
   outline: none;
 }
+
 .singlePostButton {
   width: 100px;
   border: none;
@@ -96,4 +139,6 @@
   cursor: pointer;
   align-self: flex-end;
   margin-top: 20px;
+  margin-left: 40px;
 }
+

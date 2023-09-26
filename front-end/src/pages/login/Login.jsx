@@ -13,7 +13,7 @@ export default function Login() {
     e.preventDefault();
     dispatch({ type: "LOGIN_START" });
     try {
-      const res = await axios.post("/users/login", {
+      const res = await axios.post("v2/users/login", {
         email: userRef.current.value,
         password: passwordRef.current.value,
       });
@@ -29,9 +29,11 @@ export default function Login() {
       <form className="loginForm" onSubmit={handleSubmit}>
         <label>Email</label>
         <input
-          type="text"
+          type="email"
           className="loginInput"
           placeholder="Enter your Email..."
+          minLength={5}
+          maxLength={25}
           ref={userRef}
         />
         <label>Password</label>
@@ -39,6 +41,8 @@ export default function Login() {
           type="password"
           className="loginInput"
           placeholder="Enter your password..."
+          minLength={8}
+          maxLength={20}
           ref={passwordRef}
         />
         <button className="loginButton" type="submit" disabled={isFetching}>

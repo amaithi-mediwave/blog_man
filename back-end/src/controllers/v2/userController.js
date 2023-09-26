@@ -3,15 +3,15 @@ const bcrypt = require("bcrypt");
 const {
   userInfoModel,
   userModel
-} = require("../models/userModel");
+} = require("../../models/userModel");
 
 
 const jwt = require("jsonwebtoken");
-const validator = require("../validators/userValidator")
-const { messages } = require("../utils/responseMessages")
-const tokenGenerator = require("../utils/tokenGenerator")
+const validator = require("../../validators/userValidator")
+const { messages } = require("../../utils/responseMessages")
+const tokenGenerator = require("../../utils/tokenGenerator")
 
-const userService = require("../services/userServices")
+const userService = require("../../services/userServices")
 
 
 //------------------------------------------------------
@@ -183,7 +183,7 @@ const currentUserInfo = asyncHandler(async (req, res) => {
     throw new Error(messages.user.mes_8);
 
   } else {
-     res.status(200).json({userInfo});
+    res.status(200).json({ userInfo });
     // res.status(200).json({
     //   User_Info: {
     //     name: `${userInfo.first_name} ${userInfo.last_name}`,

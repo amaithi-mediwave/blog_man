@@ -79,11 +79,12 @@ const articleCommentsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    parent_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    }
   },
-  {
-    timestamps: true,
-    versionKey: false
-  },
+  { timestamps: { createdAt: true, updatedAt: false }, versionKey: false }
 );
 //------------------------------------------------------
 //            CATEGORY(ARTICLE) MODEL

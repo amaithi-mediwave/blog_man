@@ -13,7 +13,7 @@ export default function Register() {
     e.preventDefault();
     setError(false);
     try {
-      const res = await axios.post("/users/register", {
+      const res = await axios.post("v2/users/register", {
         username,
         email,
         password,
@@ -32,13 +32,17 @@ export default function Register() {
           type="text"
           className="registerInput"
           placeholder="Enter your username..."
+          minLength={5}
+          maxLength={30}
           onChange={(e) => setUsername(e.target.value)}
         />
         <label>Email</label>
         <input
-          type="text"
+          type="email"
           className="registerInput"
           placeholder="Enter your email..."
+          minLength={5}
+          maxLength={25}
           onChange={(e) => setEmail(e.target.value)}
         />
         <label>Password</label>
@@ -46,6 +50,8 @@ export default function Register() {
           type="password"
           className="registerInput"
           placeholder="Enter your password..."
+          minLength={8}
+          maxLength={20}
           onChange={(e) => setPassword(e.target.value)}
         />
         <button className="registerButton" type="submit">

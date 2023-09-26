@@ -31,7 +31,7 @@ export default function Settings() {
 
   useEffect(() => {
     const getInfo = async () => {
-      const res = await axios.get(`/users/userinfo/${user._id}`);
+      const res = await axios.get(`v2/users/userinfo/${user._id}`);
       setInfo(res.data);
       // setTitle(res.data.title);
       // setDesc(res.data.blog_data);
@@ -64,7 +64,7 @@ export default function Settings() {
       } catch (err) { }
     }
     try {
-      const res = await axios.post("/users/userinfo/" + user._id, updatedUser);
+      const res = await axios.post("v2/users/userinfo/" + user._id, updatedUser);
       setSuccess(true);
       dispatch({ type: "UPDATE_SUCCESS", payload: res.data });
     } catch (err) {
@@ -101,21 +101,27 @@ export default function Settings() {
             // placeholder= "amaithi"
             defaultValue={info.first_name}
             // value="Amaithi"
-
+            minLength={3}
+            maxLength={10}
             onChange={(e) => setFirstname(e.target.value)}
           />
           <label>Last Name</label>
           <input
             type="text"
             // placeholder={first_name}
+            minLength={3}
+            maxLength={10}
             defaultValue={info.last_name}
             onChange={(e) => setLastname(e.target.value)}
           />
-          <label>Date of Birth</label>
+          <label>Date of Birth (minimum 2003 born)</label>
           <DatePicker
             showIcon
             selected={dobDate}
             defaultValue={info.dob}
+            // minDate={"2020, 01, 01"}
+            maxDate={new Date("2003, 01, 01")}
+            // maxDate={new Date('2003, 01, 01')}
             onChange={(date) => setDobDate(date)}
           />
 
@@ -124,12 +130,16 @@ export default function Settings() {
           <input
             type="text"
             // placeholder={first_name}
+            minLength={3}
+            maxLength={20}
             defaultValue={info.profession}
             onChange={(e) => setProfession(e.target.value)}
           />
           <label>Interests</label>
           <input
             type="text"
+            minLength={3}
+            maxLength={50}
             // placeholder={first_name}
             defaultValue={info.interests}
             onChange={(e) => setInterests(e.target.value)}
@@ -137,6 +147,8 @@ export default function Settings() {
           <label>About</label>
           <input
             type="text"
+            minLength={3}
+            maxLength={500}
             // placeholder={first_name}
             defaultValue={info.about}
             onChange={(e) => setAbout(e.target.value)}
