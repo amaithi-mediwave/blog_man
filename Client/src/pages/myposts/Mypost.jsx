@@ -1,25 +1,31 @@
 import { useEffect, useState, useContext } from "react";
-import Header from "../../components/header/Header";
+// import Header from "../../components/header/Header";
 import Posts from "../../components/posts/Posts";
-import Sidebar from "../../components/sidebar/Sidebar";
+// import Sidebar from "../../components/sidebar/Sidebar";
 import "./myposts.css";
 import axios from "axios";
-import { useLocation } from "react-router";
 import { Context } from "../../context/Context";
 
-export default function Myposts() {
-  const { user } = useContext(Context);
-  console.log(user)
-  const [posts, setPosts] = useState([]);
-  // const { search } = useLocation();
 
+export default function Myposts() {
+
+  const { user } = useContext(Context);
+  const [posts, setPosts] = useState([]);
+
+  //------------------------------------------------------
+  //          GETTING USER ARTICLES - BOTH PUBLISHED AND DRAFT
+  //------------------------------------------------------
   useEffect(() => {
     const fetchPosts = async () => {
-      const res = await axios.get("v2/articles/user/" + user._id);
+      const res = await axios.get("/articles/user-all/" + user._id);
       setPosts(res.data);
     };
     fetchPosts();
-  }, []);
+  }, [user._id]);
+
+  //------------------------------------------------------
+  //          RETURN BLOCK
+  //------------------------------------------------------
   return (
     <>
       {/* <Header /> */}

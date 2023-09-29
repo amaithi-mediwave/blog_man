@@ -46,13 +46,13 @@ const Comment = ({
             submitLabel="Update"
             hasCancelButton
             initialText={comment.comment_data}
-            handleSubmit={(text) => updateComment(text, comment._id)}
+            handleSubmit={(text) => updateComment(comment._id, text)}
             handleCancel={() => {
               setActiveComment(null);
             }}
           />
         )}
-        {/* <div className="comment-actions">
+        <div className="comment-actions">
           {canReply && (
             <div
               className="comment-action"
@@ -81,11 +81,11 @@ const Comment = ({
               Delete
             </div>
           )}
-        </div> */}
+        </div>
         {isReplying && (
           <CommentForm
             submitLabel="Reply"
-            handleSubmit={(text) => addComment(text, parentId = replyId)}
+            handleSubmit={(text) => addComment(text, replyId)}
           />
         )}
         {replies.length > 0 && (

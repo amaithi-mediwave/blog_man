@@ -4,25 +4,40 @@ import { Link } from "react-router-dom";
 import { Context } from "../../context/Context";
 import "./login.css";
 
+
 export default function Login() {
+
   const userRef = useRef();
   const passwordRef = useRef();
   const { dispatch, isFetching } = useContext(Context);
 
+
+  //------------------------------------------------------
+  //          REGISTER FORM SUBMITION HANDLER
+  //------------------------------------------------------
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     dispatch({ type: "LOGIN_START" });
+
     try {
-      const res = await axios.post("v2/users/login", {
+      const res = await axios.post("/users/login", {
         email: userRef.current.value,
         password: passwordRef.current.value,
       });
       dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
+
     } catch (err) {
+
+      console.log(err.response.data);
+      window.alert(JSON.stringify(err.response.data.message));
       dispatch({ type: "LOGIN_FAILURE" });
     }
   };
 
+  //------------------------------------------------------
+  //          RETURN BLOCK
+  //------------------------------------------------------
   return (
     <div className="login">
       <span className="loginTitle">Login</span>

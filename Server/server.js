@@ -30,9 +30,3 @@ app.listen(port, () => {
 
 
 
-// CONNECTION_STRING = "mongodb+srv://amaithichirasan:admin@amaithi-cluster.lrc1egr.mongodb.net/Blog_man_dev?retryWrites=true&w=majority"
-// # CONNECTION_STRING = "mongodb://amaithichirasan:admin@amaithi-cluster.lrc1egr.mongodb.net/Blog_man_dev?retryWrites=true&w=majority"
-
-// ACCESS_TOKEN_SECRET = "g58ga5f6a4h64f6h5a46e4rh8h4th49rwr6eu"
-// TOKEN_EXPIRY_MINUTES = "15m"
-

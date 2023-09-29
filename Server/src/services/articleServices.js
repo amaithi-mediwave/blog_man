@@ -98,7 +98,6 @@ const createArticle = async (
     title,
     summary,
     blog_data,
-    // article_category,
     article_category_id: cate_id,
     visibility,
     photo,
@@ -164,9 +163,9 @@ const findCategory = async (cate_name) => {
 //          GET ALL AVAILABLE CATEGORIES
 //------------------------------------------------------
 const findAllCategories = async () => {
-  // const allCategories = await articleCategoryModel.find({},
-  //     { __v: 0, created_at: 0, updated_at: 0 },
-  const allCategories = await articleCategoryModel.find(); //exclude fields by using the second parameter of the find method
+
+  const allCategories = await articleCategoryModel.find({},
+      { __v: 0, created_at: 0, updated_at: 0 }); //exclude fields by using the second parameter of the find method
 
   return allCategories;
 };
@@ -216,13 +215,20 @@ const findComments = async (id) => {
 //------------------------------------------------------
 //          CREATE A NEW COMMENT
 //------------------------------------------------------
-const createComment = async (user_id, article_id, comment) => {
-  const createdComment = await articleCommentsModel.create({
+const createComment = async (user_id, article_id, comment, parent_id) => {
+  let createdComment = await articleCommentsModel.create({
     user_id,
     article_id,
     comment_data: comment,
+    parent_id
   });
-  return createdComment;
+            // to retrieve the comment along with username populated.
+  const newComment = await articleCommentsModel.findById(createdComment._id).populate([
+    { path: "user_id", model: "user" },
+    { path: "article_id", model: "article", select: "title -_id" },
+  ]);
+  
+  return newComment;
 };
 
 //------------------------------------------------------

@@ -1,9 +1,11 @@
 const asyncHandler = require("express-async-handler");
 // const bcrypt = require("bcrypt");
 
-const { messages } = require("../../utils/responseMessages");
+const validator = require("../validators/articleValidator");
 
-const articleService = require("../../services/articleServices");
+const { messages } = require("../utils/responseMessages");
+
+const articleService = require("../services/articleServices");
 
 //------------------------------------------------------
 //          ARTICLE ROUTES
@@ -15,14 +17,6 @@ const articleService = require("../../services/articleServices");
 
 const getAllArticles = asyncHandler(async (req, res) => {
   const articles = await articleService.findArticles();
-  res.status(200).json(articles);
-});
-
-
-
-
-const getAllArticlesByCategory = asyncHandler(async (req, res) => {
-  const articles = await articleService.findArticlesByCategory(req.params.id);
   res.status(200).json(articles);
 });
 
@@ -39,8 +33,17 @@ const getSingleArticle = asyncHandler(async (req, res) => {
 
 //---------------------------------------------------------------
 
+// @Desc Get Articles Based on Category
+// @route GET / api / articles/category/: id
+// @access Public
 
 
+const getAllArticlesByCategory = asyncHandler(async (req, res) => {
+  const articles = await articleService.findArticlesByCategory(req.params.id);
+  res.status(200).json(articles);
+});
+
+//---------------------------------------------------------------
 
 
 //@ Desc Get User-All Articles
@@ -49,7 +52,9 @@ const getSingleArticle = asyncHandler(async (req, res) => {
 
 const getUserArticles = asyncHandler(async (req, res) => {
 
-  const userArticles = await articleService.findUserArticles(req.params.id);
+  const u_id = (req.header("v2_header") === "web") ? req.params.id : req.user.id;
+
+  const userArticles = await articleService.findUserArticles(u_id);
 
   res.status(200).json(userArticles);
 });
@@ -66,7 +71,7 @@ const getUserArticle = asyncHandler(async (req, res) => {
 
   if (!userArticle) { res.status(404); throw new Error(messages.article.mes_1); }
 
-  res.status(200).json(userArticle);
+  res.status(200).json({ userArticle });
 });
 
 //---------------------------------------------------------------
@@ -80,26 +85,33 @@ const createArticle = asyncHandler(async (req, res) => {
   const { user_id, title, summary, blog_data, article_category, visibility, photo } = req.body;
 
 
-  // const { error } = validator.validateArticle(title, summary, blog_data, article_category, visibility);
-  // if (error) { res.status(403); throw new Error(`${error}`); };
+  const { error } = validator.validateArticle(title, summary, blog_data, article_category, visibility);
+  if (error) { res.status(403); throw new Error(`${error}`); };
 
-  // let cate_name = article_category.toLowerCase();
+  let cate_id = ''
+  if (req.header("v2_header") !== "web") {
 
-  // const categoryAvailable = await articleService.findCategory(cate_name);
+    const cate_name = article_category.toLowerCase();
 
-  // if (!categoryAvailable) { res.status(403); throw new Error(`${article_category} - ${messages.article.mes_2}`); }
+    const categoryAvailable = await articleService.findCategory(cate_name);
 
-  // const cate_id = categoryAvailable._id
+    if (!categoryAvailable) { res.status(403); throw new Error(`${article_category} - ${messages.article.mes_2}`); }
 
+    cate_id = categoryAvailable._id
+  }
   // let pub = null;         // var variable = (condition) ? (true block) : (else block)
 
   var pub = (!visibility === true) ? null : Date.now();
 
-  const newArticle = await articleService.createArticle(user_id, title, summary, blog_data, article_category, visibility, pub, photo);
-  console.log(newArticle);
+  const u_id = (req.header("v2_header") === "web") ? user_id : req.user.id;
+  cate_id = (req.header("v2_header") === "web") ? article_category : cate_id;
+  // let user_id = req.user.id;
+
+  const newArticle = await articleService.createArticle(u_id, title, summary, blog_data, cate_id, visibility, pub, photo);
+
   if (newArticle) {
-    res.status(201).json(newArticle);
-    // res.status(201).json({ message: `${newArticle.title} - ${messages.article.mes_4}` }); --> FOR REST API
+    if (req.header("v2_header") === "web") { res.status(201).json(newArticle) };
+    res.status(201).json({ message: `${newArticle.title} - ${messages.article.mes_4}` });
   }
   else {
     res.status(400); throw new Error(messages.article.mes_3);
@@ -116,29 +128,36 @@ const createArticle = asyncHandler(async (req, res) => {
 const updateArticle = asyncHandler(async (req, res) => {
   const { title, summary, blog_data, article_category, visibility } = req.body;
 
-  // const { error } = validator.validateArticle(title, summary, blog_data, article_category, visibility);
-  // if (error) { res.status(403); throw new Error(`${error}`); }
+let cate_id = ''
 
-  // const article = await articleService.findOneArticle(req.params.id);
+  if (req.header("v2_header") !== "web") {
 
-  // if (!article) { res.status(404); throw new Error(messages.article.mes_1); }
+    const { error } = validator.validateArticle(title, summary, blog_data, article_category, visibility);
+    if (error) { res.status(403); throw new Error(`${error}`); }
 
-  // if (article.user_id.toString() !== req.user.id.toString()) { res.status(403); throw new Error(messages.article.mes_5); }
+    const article = await articleService.findOneArticle(req.params.id);
+
+    if (!article) { res.status(404); throw new Error(messages.article.mes_1); }
+
+    if (article.user_id._id.toString() !== req.user.id.toString()) { res.status(403); throw new Error(messages.article.mes_5); }
+
+    let cate_name = article_category.toLowerCase();
+
+    const categoryAvailable = await articleService.findCategory(cate_name);
+
+    if (!categoryAvailable) { res.status(403); throw new Error(`${article_category} - ${messages.article.mes_2}`); }
+    
+    cate_id = categoryAvailable._id
+  }
 
   var pub = (!visibility == "true") ? null : Date.now();
 
-  // let cate_name = article_category.toLowerCase();
+  const c_id = (req.header("v2_header") === "web") ? article_category : cate_id;
 
 
-  // const categoryAvailable = await articleService.findCategory(cate_name);
+  const updatedArticle = await articleService.updateOneArticle(req.params.id, title, summary, blog_data, c_id, visibility, pub);
 
-  // if (!categoryAvailable) { res.status(403); throw new Error(`${article_category} - ${messages.article.mes_2}`); }
-
-  // const cate_id = categoryAvailable._id
-
-  const updatedArticle = await articleService.updateOneArticle(req.params.id, title, summary, blog_data, article_category, visibility, pub);
-
-  if (updatedArticle) { res.status(200).json({ message: messages.article.mes_6 }); }
+  if (updatedArticle) { res.status(200).json({ message: messages.article.mes_6, Updated_Article: updatedArticle }); }
 
   else { res.status(400); throw new Error(messages.article.mes_7); }
 
@@ -154,25 +173,26 @@ const updateArticle = asyncHandler(async (req, res) => {
 
 const deleteArticle = asyncHandler(async (req, res) => {
 
-  // const article = await articleService.findOneArticle(req.params.id);
+  if (req.header("v2_header") !== "web") {
 
-  // if (!article) { res.status(404); throw new Error(messages.article.mes_1); }
+    const article = await articleService.findOneArticle(req.params.id);
 
-  // if (article.user_id.toString() !== req.user.id.toString()) { res.status(403); throw new Error(messages.article.mes_5); }
+    if (!article) { res.status(404); throw new Error(messages.article.mes_1); }
 
+    if (article.user_id._id.toString() !== req.user.id.toString()) { res.status(403); throw new Error(messages.article.mes_5); }
+  }
   const deletedArticle = await articleService.deleteOneArticle(req.params.id);
-  console.log(deletedArticle);
+
   if (deletedArticle) {
-    res.status(200).json({ message: "Article Deleted Successfully" });
-    // json({
-    //   message: messages.article.mes_8, Article: {
-    //     title: deletedArticle.title,
-    //     summary: deletedArticle.summary,
-    //     blog_data: deletedArticle.summary,
-    //     article_category: deletedArticle.article_category,
-    //     visibility: deletedArticle.visibility
-    //   }
-    // });
+    res.status(200).json({
+      message: messages.article.mes_8, Article: {
+        title: deletedArticle.title,
+        summary: deletedArticle.summary,
+        blog_data: deletedArticle.summary,
+        article_category: deletedArticle.article_category,
+        visibility: deletedArticle.visibility
+      }
+    });
   } else {
     res.status(400); throw new Error(messages.article.mes_9);
   }
@@ -204,6 +224,22 @@ const getAllArticleCategories = asyncHandler(async (req, res) => {
 });
 
 
+//@ Desc Get Single Category
+//@route GET /api/articles/category/:cat_name
+//@ access Public
+
+const getSingleArticleCategory = asyncHandler(async (req, res) => {
+
+  const category = await articleService.findCategory(req.params.cate_name);
+
+
+  if (category) {
+    res.status(200).json(category);
+  } else {
+    res.status(400); throw new Error(messages.article.mes_10);
+  }
+
+});
 
 //---------------------------------------------------------------
 
@@ -300,23 +336,34 @@ const getComments = asyncHandler(async (req, res) => {
 //@ access Private
 
 const createComment = asyncHandler(async (req, res) => {
-  const { user_id, article_id, comment_data, parent_id } = req.body;
 
-  // if (!comment) { res.status(400); throw new Error(messages.comment.mes_1); }
+  if (req.header("v2_header") !== "web") {
+    const { comment } = req.body;
 
-  const newComment = await articleService.createComment(
-    user_id,
-    article_id,
-    comment_data,
-    parent_id)
-  // req.user.id, req.params.id, comment)
+    if (!comment) { res.status(400); throw new Error(messages.comment.mes_1); }
 
-  if (!newComment) { res.status(400); throw new Error(messages.comment.mes_2); }
+    const newComment = await articleService.createComment(req.user.id, req.params.id, comment)
 
-  else {
+    if (!newComment) {
+      res.status(400); throw new Error(messages.comment.mes_2);
+    } else { res.status(201).json({ message: messages.comment.mes_3 }); }
 
-    res.status(201).json({ newComment });
+  } else {
+    const { user_id, article_id, comment_data, parent_id } = req.body;
+    const newComment = await articleService.createComment(
+      user_id,
+      article_id,
+      comment_data,
+      parent_id);
+
+    if (!newComment) {
+      res.status(400); throw new Error(messages.comment.mes_2);
+    } else {
+      if (req.header("v2_header") == "web") { res.status(201).json({ newComment }); };
+      res.status(201).json({ message: messages.comment.mes_3 });
+    }
   }
+
 });
 
 //---------------------------------------------------------------
@@ -329,27 +376,45 @@ const createComment = asyncHandler(async (req, res) => {
 
 const updateComment = asyncHandler(async (req, res) => {
   const { comment_data } = req.body;
-  if (!comment_data) { res.status(400); throw new Error(messages.comment.mes_1); }
 
+  let comment = ''
+  const fiveMinutes = 300000;
 
-  const comment = await articleService.findComment(req.params.id);
+  if (req.header("v2_header") !== "web") {
 
-  if (!comment) { res.status(404); throw new Error(messages.comment.mes_4); }
+    if (!comment_data) { res.status(400); throw new Error(messages.comment.mes_1); }
 
-  if (comment.user_id.toString() !== req.user.id) {
-    res.status(403);
-    throw new Error(messages.comment.mes_5);
-  }
+    comment = await articleService.findComment(req.params.id);
 
-  const updatedComment = await articleService.updateComment(req.params.id, comment_data);
-  if (!updatedComment) { res.status(400); throw new Error(messages.comment.mes_6); }
-  else {
-    res.status(200).json({
-      message: messages.comment.mes_7, data: {
-        old_comment: comment.comment_data,
-        updated_comment: updatedComment.comment_data
-      }
-    });
+    if (!comment) { res.status(404); throw new Error(messages.comment.mes_4); }
+
+    if (comment.user_id.toString() !== req.user.id) {
+      res.status(403);
+      throw new Error(messages.comment.mes_5);
+    }
+    
+  // timePassed = new Date() - new Date(comment.createdAt) > fiveMinutes;
+
+  };
+  const timePassed = (comment) ? new Date() - new Date(comment.createdAt) > fiveMinutes : false;
+
+  if (!timePassed) {
+    const updatedComment = await articleService.updateComment(req.params.id, comment_data);
+
+    if (!updatedComment) { res.status(400); throw new Error(messages.comment.mes_6); }
+    else {
+      
+      if (req.header("v2_header") === "web") { res.status(200).json(updatedComment); }
+      else {
+      res.status(200).json({
+        message: messages.comment.mes_7, data: {
+          old_comment: comment.comment_data,
+          updated_comment: updatedComment.comment_data
+        }
+      })};
+    }}
+   else {
+    res.status(403); throw new Error(messages.comment.mes_10);
   }
 });
 
@@ -361,21 +426,31 @@ const updateComment = asyncHandler(async (req, res) => {
 //@ access Private
 
 const deleteComment = asyncHandler(async (req, res) => {
+let comment = ''
+const fiveMinutes = 300000;
+  if (req.header("v2_header") !== "web") {
 
+    comment = await articleService.findComment(req.params.id);
 
-  const comment = await articleService.findComment(req.params.id);
+    if (!comment) { res.status(404); throw new Error(messages.comment.mes_4); }
 
-  if (!comment) { res.status(404); throw new Error(messages.comment.mes_4); }
-
-  if (comment.user_id.toString() !== req.user.id) {
-    res.status(403);
-    throw new Error(messages.comment.mes_10);
+    if (comment.user_id.toString() !== req.user.id) {
+      res.status(403);
+      throw new Error(messages.comment.mes_12);
+    }
   }
 
+  // const timePassed = new Date() - new Date(comment.createdAt) > fiveMinutes;
+  const timePassed = (comment) ? new Date() - new Date(comment.createdAt) > fiveMinutes : false;
+  if (!timePassed) {
+  
   const delComment = await articleService.deleteComment(req.params.id);
   if (!delComment) { res.status(400); throw new Error(messages.comment.mes_8); }
   else {
     res.status(200).json({ message: messages.comment.mes_9, Deleted_comment: delComment.comment_data });
+  } } else {
+    res.status(403);
+      throw new Error(messages.comment.mes_11);
   }
 });
 
@@ -390,8 +465,9 @@ const deleteComment = asyncHandler(async (req, res) => {
 module.exports = {
   getAllArticles,
   getAllArticlesByCategory,
+  getSingleArticleCategory,
   getSingleArticle,
-  // getUserArticle,
+  getUserArticle,
   getUserArticles,
   createArticle,
   updateArticle,

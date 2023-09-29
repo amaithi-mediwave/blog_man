@@ -3,26 +3,44 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./register.css";
 
+
 export default function Register() {
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  // const [error, setError] = useState(false);
+  // const [errorDetail, setErrorDetail] = useState('');
 
+  //------------------------------------------------------
+  //          REGISTER FORM SUBMISSION HANDLER
+  //------------------------------------------------------
   const handleSubmit = async (e) => {
+
     e.preventDefault();
-    setError(false);
+    // setError(false);
     try {
-      const res = await axios.post("v2/users/register", {
+      const res = await axios.post("/users/register", {
         username,
         email,
         password,
       });
       res.data && window.location.replace("/login");
+
     } catch (err) {
-      setError(true);
+
+      let message = JSON.stringify(err.response.data.message);
+      let new_m = message.replaceAll('-', '\n').replace(/\\|"|ValidationError:/gi, " ");
+
+      window.alert(new_m);
+      // setErrorDetail(JSON.stringify(err.response.data.message));
+      // setError(true);
     }
   };
+
+  //------------------------------------------------------
+  //          RETURN BLOCK
+  //------------------------------------------------------  
   return (
     <div className="register">
       <span className="registerTitle">Register</span>
@@ -63,7 +81,7 @@ export default function Register() {
           Login
         </Link>
       </button>
-      {error && <span style={{ color: "red", marginTop: "10px" }}>Something went wrong!</span>}
+      {/* {error && <span style={{ color: "red", marginTop: "10px" }}>{errorDetail}</span>} */}
     </div>
   );
 }

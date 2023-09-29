@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import CommentForm from "./CommentForm";
 import Comment from "./Comment";
-import {Context} from "../../../context/Context";
+import { Context } from "../../../context/Context";
 import "./comments.css"
 import {
   getComments as getCommentsApi,
@@ -22,7 +22,7 @@ const Comments = () => {
   // console.log(`user = ${user}`);
   const location = useLocation();
   const path = location.pathname.split("/")[2];
-  
+
   const [backendComments, setBackendComments] = useState([]);
   const [activeComment, setActiveComment] = useState(null);
   const rootComments = backendComments.filter(
@@ -40,17 +40,18 @@ const Comments = () => {
   const addComment = (text, parentId) => {
     createCommentApi(path, user._id, text, parentId).then((comment) => {
       // console.log(comment.newComment);
-      setBackendComments([comment.newComment, ...backendComments]);
+      comment = comment.newComment;
+      setBackendComments([comment, ...backendComments]);
       // console.log(comment);
       setActiveComment(null);
     });
   };
 
-  const updateComment = (text, commentId) => {
-    updateCommentApi(text, commentId).then(() => {
+  const updateComment = (commentId, text) => {
+    updateCommentApi(commentId, text).then(() => {
       const updatedBackendComments = backendComments.map((backendComment) => {
         if (backendComment._id === commentId) {
-          return { ...backendComment, body: text };
+          return { ...backendComment, comment_data: text };
         }
         return backendComment;
       });
@@ -73,7 +74,7 @@ const Comments = () => {
     getCommentsApi(path).then((data) => {
       setBackendComments(data);
     });
-  }, []);
+  }, [path]);
 
   return (
     <div className="comments">

@@ -6,17 +6,28 @@ import "./homepage.css";
 import axios from "axios";
 import { useLocation } from "react-router";
 
+
+
 export default function Home() {
+
+
   const [posts, setPosts] = useState([]);
   const { search } = useLocation();
 
+  //------------------------------------------------------
+  //          GETTING ALL PUBLISHED ARTICLES
+  //------------------------------------------------------
   useEffect(() => {
     const fetchPosts = async () => {
-      const res = await axios.get("v2/articles" + search);
+      const res = await axios.get("/articles" + search);
       setPosts(res.data);
     };
     fetchPosts();
   }, [search]);
+
+  //------------------------------------------------------
+  //          RETURN BLOCK - Passing the Articke list to POSTS Component
+  //------------------------------------------------------
   return (
     <>
       <Header />

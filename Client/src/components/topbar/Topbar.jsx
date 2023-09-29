@@ -2,30 +2,23 @@ import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../../context/Context";
 import "./topbar.css";
-// import axios from 'axios'
 
 
 export default function TopBar() {
-  // const [profile, setProfile] = useState("");
-  const { user, dispatch } = useContext(Context);
-  // const PF = "http://localhost:5000/images/"
-  // const pf_holder = "https://www.shutterstock.com/image-vector/default-profile-picture-avatar-photo-250nw-1681253560.jpg"
-  // console.log(user);
-  //   useEffect(() => {
-  //     const getInfo = async () => {
-  //       let res = await axios.get(`/users/user-info/${user._id}`);
-  //       setProfile(res.data.profile_pic);
-  //       // setTitle(res.data.title);
-  //       // setDesc(res.data.blog_data);
-  //       // console.log(info);
-  //     };
-  //     getInfo();
-  //   }, []);
-  // console.log(profile);
 
+  const { user, dispatch } = useContext(Context);
+
+  //------------------------------------------------------
+  //          Logout handler
+  //------------------------------------------------------
   const handleLogout = () => {
     dispatch({ type: "LOGOUT" });
   };
+
+  //------------------------------------------------------
+  //         RETURN BLOCK
+  //------------------------------------------------------
+
   return (
     <div className="top">
       <div className="topLeft">
@@ -46,31 +39,26 @@ export default function TopBar() {
               My Posts
             </Link>
           </li>
-
-          {/* <li className="topListItem">
-            <Link className="link" to="/">
-              Categories
-            </Link>
-          </li> */}
           <li className="topListItem">
             <Link className="link" to="/write">
               Write
             </Link>
           </li>
-          <li className="topListItem" onClick={handleLogout}>
+          <li className="topListItem" onClick={
+            () => { if (window.confirm("Are You Sure to Signout..?")) { handleLogout() }; }}>
             {user && "Logout"}
           </li>
         </ul>
       </div>
       <div className="topRight">
         {user ? (
-          <Link to="/settings">
-
-            {/* <img className="topImg" src={PF + user._id} alt={user.first_name} /> */}
-            <img className="topImg" src="https://media.istockphoto.com/id/1214428300/vector/default-profile-picture-avatar-photo-placeholder-vector-illustration.jpg?s=612x612&w=0&k=20&c=vftMdLhldDx9houN4V-g3C9k0xl6YeBcoB_Rk6Trce0=" />
-
+          <Link to="/user-info">
+          {/* <p>Amaithi</p> */}
+            <img className="topImg" src="https://media.istockphoto.com/id/1214428300/vector/default-profile-picture-avatar-photo-placeholder-vector-illustration.jpg?s=612x612&w=0&k=20&c=vftMdLhldDx9houN4V-g3C9k0xl6YeBcoB_Rk6Trce0=" alt="welcome" />
           </Link>
+
         ) : (
+
           <ul className="topList">
             <li className="topListItem">
               <Link className="link" to="/login">

@@ -7,13 +7,19 @@ const joi = require("joi");
 function validateRegisterUser(username, email, password, login_after_register) {
   let user = { username, email, password, login_after_register };
 
+  const pattern = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,20}$/;
+  // const username_pattern = "/^[a-zA-Z0-9]{5,15}/"
   const joiSchema = joi
     .object({
-      username: joi.string().min(5).max(30).required(),
+      username: joi.string().min(5).max(15).required(),
 
       email: joi.string().email().min(5).max(25).required(),
 
-      password: joi.string().min(8).max(20).required(),
+      password: joi
+        .string()
+        .pattern(new RegExp(pattern))
+        .required()
+        .messages({ "string.pattern.base": "Password: - * Contain at least one Upper & Lower case letters - * Must contain a number - * Contain atleast one Special Character - * length between 8 and 20" }),
 
       login_after_register: joi
         .string()

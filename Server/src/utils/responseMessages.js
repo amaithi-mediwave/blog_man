@@ -13,8 +13,8 @@ const messages = {
         mes_3: "User Created and Logged-in Successfully",
         mes_4: "User Created Successfully",
         mes_5: "Login Successful",
-        mes_6: "email is not valid",
-        mes_7: "Password is not valid",
+        mes_6: "No Account is Exists with the given Email",
+        mes_7: "Password Invalid",
         mes_8: "User Info Doesn't Exists Create a New Info",
     },
 
@@ -46,12 +46,10 @@ const messages = {
         mes_7: "Comment has been updated",
         mes_8: "Unable to Delete the Comment",
         mes_9: "Comment Deleted Successfully",
-        mes_10: "You don't have permission to Delete the Comment posted by another User",
-
+        mes_10: "You don't have permission to update the Comment since it passed 5min update limit",
+        mes_11: "You don't have permission to Delete the Comment since it passed 5min update limit",
+        mes_12: "You don't have permission to Delete the Comment posted by another user",
     }
-
-    
-    
 }
 
 module.exports = { messages }

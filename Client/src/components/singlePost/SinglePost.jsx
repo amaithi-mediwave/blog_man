@@ -2,22 +2,22 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
-import { Redirect } from 'react-router-dom'
 import { Context } from "../../context/Context";
 import Select from 'react-select';
 import "./singlePost.css";
-// import CommentSection from "../commentbar/component/CommentSection";
 import Comments from "../commentbar/comments/Comments";
+
+
 
 export default function SinglePost() {
 
-
+  const PF = "http://localhost:5000/images/";
   const location = useLocation();
   const path = location.pathname.split("/")[2];
-  // console.log(path);
-  const [post, setPost] = useState({});
-  const PF = "http://localhost:5000/images/";
   const { user } = useContext(Context);
+
+  const [post, setPost] = useState({});
+
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [desc, setDesc] = useState("");
@@ -30,77 +30,100 @@ export default function SinglePost() {
 
 
 
-
+  //------------------------------------------------------
+  //          GETTING ARTICLES FROM DATABASE (Where Visibility is true)
+  //------------------------------------------------------
   useEffect(() => {
     const getPost = async () => {
-      const res = await axios.get("v2/articles/" + path);
+      const res = await axios.get("/articles/" + path);
       setPost(res.data);
       setTitle(res.data.title);
       setDesc(res.data.blog_data);
       setAuthor(res.data.user_id);
       setSummary(res.data.summary)
-      console.log(res);
     };
     getPost();
   }, [path]);
 
+
+  //------------------------------------------------------
+  //          GETTING AVAILABLE CATEGORIES
+  //------------------------------------------------------
   useEffect(() => {
     const getCats = async () => {
-      const res = await axios.get("v2/articles/category");
+      const res = await axios.get("/articles/category");
       setCats(res.data);
     };
     getCats();
-
   }, []);
+
+  //------------------------------------------------------
+  //          Maping Values for Category Selector for Edit
+  //------------------------------------------------------
   const options = cats.map(d => ({
     "value": d._id,
     "label": d.category_name
   }))
 
+  //------------------------------------------------------
+  //          Maping Values for Publish Selector for Edit
+  //------------------------------------------------------
   const publish = [
     { value: 'true', label: 'Publish' },
     { value: 'false', label: "Draft" },
   ]
 
+  //------------------------------------------------------
+  //          Handle CategoryChange, PublishChange 
+  //------------------------------------------------------
   const handleCategoryChange = (selectedOption) => {
     setCategory(selectedOption);
   };
 
   const handlePublishChange = (selectedOption) => {
     setVisibility(selectedOption);
-  }
+  };
 
 
-
+  //------------------------------------------------------
+  //          HandleCancel, HandleDelete, HandleUpdate
+  //------------------------------------------------------
   const handleCancel = () => {
-    window.location.reload(false);
+    if (window.confirm("Are you Sure to cancel the update..! all your un-updated content will be lost..")) {
+      window.location.reload(false);
+    };
   }
-
-
-
 
   const handleDelete = async () => {
     try {
-      const res = await axios.delete(`/v2/articles/${post._id}`);
-      res.data && window.location.replace("/");
+      if (window.confirm("Are You Sure to Delete the Article..?")) {
+        const res = await axios.delete(`/articles/user/${post._id}`);
+        window.alert("Article has been deleted Successfully, you'll be redirected Home.")
+        res.data && window.location.replace("/");
+      }
     }
     catch (err) { }
   };
 
-
-
   const handleUpdate = async () => {
     try {
-      await axios.put(`/v2/articles/${post._id}`, {
+     
+      await axios.put(`/articles/user/${post._id}`, {
         title,
         summary,
         blog_data: desc,
         article_category: category.value,
         visibility: visibility.value
       });
+      window.alert("Article has been Updated Successfully, you'll be redirected to the Article.")
       setUpdateMode(false)
     } catch (err) { }
   };
+
+
+  //------------------------------------------------------
+  //          RETURN BLOCK
+  //------------------------------------------------------
 
 
   return (
@@ -127,11 +150,11 @@ export default function SinglePost() {
                 <i
                   className="singlePostIcon far fa-edit"
                   onClick={() => setUpdateMode(true)}
-                ></i>
+                > Edit </i>
                 <i
                   className="singlePostIcon far fa-trash-alt"
                   onClick={handleDelete}
-                ></i>
+                > Delete</i>
               </div>
             )}
           </h1>
@@ -148,8 +171,6 @@ export default function SinglePost() {
           </span>
         </div>
         {updateMode ? (
-
-
 
           <>
             <div className="writeFormGroup">
@@ -177,7 +198,6 @@ export default function SinglePost() {
                 placeholder="Select Article Category"
                 className="writeInput writeText11"
                 onChange={handleCategoryChange} autoFocus={true}
-              // onChange={e => setCategory(e.target.value)}
               />
             </div>
 
@@ -199,9 +219,6 @@ export default function SinglePost() {
               ></textarea>
             </div>
           </>
-
-
-
 
         ) : (
           <div>
@@ -230,18 +247,3 @@ export default function SinglePost() {
   );
 }
 
-
-
-{/* <>
-          <textarea
-            className="singlePostSummaryInput"
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
-          />
-          <br/>
-          <textarea
-            className="singlePostDescInput"
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
-          />
-          </> */}

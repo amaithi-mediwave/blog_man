@@ -21,7 +21,7 @@ function validateArticle(
 
       blog_data: joi.string().min(10).required(),
 
-      article_category: joi.string().min(5).max(15).required(),
+      article_category: joi.string().min(5).max(25).required(),
 
       visibility: joi.string().valid("true").valid("false").required(),
     })

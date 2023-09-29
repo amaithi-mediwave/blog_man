@@ -17,6 +17,7 @@
 }
 
 .headerTitleLg {
+  margin-top: -70px;
   position: absolute;
   top: 20%;
   font-size: 100px;

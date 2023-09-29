@@ -16,24 +16,19 @@ function init(app) {
     //------------------------------------------------------
     //        V1  USER & ARTICLE ROUTES - REST API
     //------------------------------------------------------
-    app.use("/api/users/", require("./v2/userRoutes"));
-    app.use("/api/articles", require("./v1/articlesRoute"));
+    app.use("/api/users/", require("./userRoutes"));
+    app.use("/api/articles", require("./articlesRoute"));
 
 
     //------------------------------------------------------
     //        V2  USER & ARTICLE ROUTES & MULTER - REACT
     //------------------------------------------------------
 
-    app.use("/api/v2/users", require("./v2/userRoutes"));
-    app.use("/api/v2/articles", require("./v2/articlesRoute"));
-
-    //          FILE HANDLER
-
-    app.post("/api/v2/upload/:id", upload.single("file"), (req, res) => {
+    app.post("/api/upload/:id", upload.single("file"), (req, res) => {
         res.status(200).json("File has been uploaded");
     });
 
-    app.post("/api/v2/upload", upload.single("file"), (req, res) => {
+    app.post("/api/upload", upload.single("file"), (req, res) => {
         res.status(200).json("File has been uploaded");
     });
 
@@ -42,10 +37,11 @@ function init(app) {
     //------------------------------------------------------
     // app.use('*', require("../middleware/wrongApiEndpointHandler"));
 
+
     //------------------------------------------------------
     //          ERROR HANDLER
     //------------------------------------------------------
-    // app.use(errorHandler);  // Custom Error Handler [Middleware]
+    app.use(errorHandler);  // Custom Error Handler [Middleware]
 
 
 
@@ -54,3 +50,6 @@ function init(app) {
 module.exports = {
     init: init
 };
+
+
+

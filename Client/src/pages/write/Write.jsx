@@ -4,35 +4,48 @@ import axios from "axios";
 import Select from 'react-select';
 import { Context } from "../../context/Context";
 
+
 export default function Write() {
+
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [desc, setDesc] = useState("");
   const [file, setFile] = useState(null);
-  const { user } = useContext(Context);
-
   const [cats, setCats] = useState([]);
   const [category, setCategory] = useState("");
   const [visibility, setVisibility] = useState("");
+  const { user } = useContext(Context);
 
+  //------------------------------------------------------
+  //          GETTING THE AVAILABLE CATEGORIES
+  //------------------------------------------------------
   useEffect(() => {
     const getCats = async () => {
-      const res = await axios.get("v2/articles/category");
+      const res = await axios.get("/articles/category");
       setCats(res.data);
     };
     getCats();
-
   }, []);
+
+  //------------------------------------------------------
+  //          MAPPTING OPTIONS FOR CATEGORY SELECTOR
+  //------------------------------------------------------
   const options = cats.map(d => ({
     "value": d._id,
     "label": d.category_name
   }))
 
+  //------------------------------------------------------
+  //          MAPPTING OPTIONS FOR PUBISH SELECTOR
+  //------------------------------------------------------
   const publish = [
     { value: 'true', label: 'Publish' },
     { value: 'false', label: "Draft" },
   ]
 
+  //------------------------------------------------------
+  //          CATEGORY AND PUBLISH SELECTOR HANDLER
+  //------------------------------------------------------
   const handleCategoryChange = (selectedOption) => {
     setCategory(selectedOption);
   };
@@ -42,11 +55,13 @@ export default function Write() {
   }
 
 
-
+  //------------------------------------------------------
+  //          WRITE FORM SUBMIT HANDLER
+  //------------------------------------------------------
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     const newPost = {
-      // username: user.username,
       user_id: user._id,
       title,
       summary,
@@ -55,23 +70,37 @@ export default function Write() {
       visibility: visibility.value,
       photo: ''
     };
-    
+
     if (file) {
       const data = new FormData();
       const filename = Date.now() + file.name;
       data.append("name", filename);
       data.append("file", file);
       newPost.photo = filename;
+
       try {
-        await axios.post("/v2/upload", data);
+        await axios.post("/upload", data);
       } catch (err) { }
     }
+
+    //------------------------------------------------------
+    //          CREATE NEW ARTICLE
+    //------------------------------------------------------
     try {
-      console.log(newPost);
-      const res = await axios.post("v2/articles", newPost);
+      const res = await axios.post("/articles", newPost);
+      if (res) { window.alert("Your Article has been created Succesfully and you'll be redirected to the Article.."); }
       window.location.replace("/post/" + res.data._id);
-    } catch (err) { }
+    } catch (err) {
+      let message = JSON.stringify(err.response.data.message);
+      let new_m = message.replaceAll('-', '\n').replace(/\\|"|ValidationError:/gi, " ");
+
+      window.alert(new_m);
+    }
   };
+
+  //------------------------------------------------------
+  //          RETURN BLOCK
+  //------------------------------------------------------
   return (
     <div className="write">
       {file && (
@@ -80,7 +109,7 @@ export default function Write() {
       <form className="writeForm" onSubmit={handleSubmit}>
         <div className="writeFormGroup">
           <label htmlFor="fileInput">
-            <i className="writeIcon fas fa-plus"></i>
+            <i className="writeIcon fas fa-plus">Upload Image</i>
           </label>
           <input
             type="file"

@@ -8,11 +8,14 @@ export default function Post({ post }) {
 
 
   const PF = "http://localhost:5000/images/";
+
+  //------------------------------------------------------
+  //          RETURN BLOCK
+  //------------------------------------------------------
   return (
     <div className="post">
-      {post.photo && <img className="postImg" src={PF + post.photo} alt="" />}
 
-      {/* {post.visibility == false && <h3 class='text-on-image'>Draft</h3>} */}
+      {post.photo && <img className="postImg" src={PF + post.photo} alt="" />}
 
       <div className="postInfo">
         <div className="postCats">
@@ -21,15 +24,16 @@ export default function Post({ post }) {
           ))} */}
           <span className="postCat">{post.article_category_id.category_name}</span>
         </div>
+
         <Link to={`/post/${post._id}`} className="link">
           <span className="postTitle" >{post.title}</span>
         </Link>
-        <hr />
+        <br />
         <span className="postDate">
+
           {new Date(post.published_at).toDateString()}
 
         </span>
-
       </div>
       <p className="postDesc">{post.summary}</p>
     </div>

@@ -1,5 +1,5 @@
 
-
+CONNECTION_STRING = "mongodb+srv://amaithichirasan:admin@amaithi-cluster.lrc1egr.mongodb.net/Blog_man_dev?retryWrites=true&w=majority"
 
 const mongoose = require("mongoose");
 
@@ -11,8 +11,8 @@ const mongoose = require("mongoose");
 
 const connectDb = async () => {
     try {
-        const connect = await mongoose.connect(process.env.CONNECTION_STRING);      // Try to Establish connection to mongoDb Atlas
-        
+        // const connect = await mongoose.connect(process.env.CONNECTION_STRING);      // Try to Establish connection to mongoDb Atlas
+        const connect = await mongoose.connect(CONNECTION_STRING);
         console.log("Database Connection Established");
 
     } catch (err) {

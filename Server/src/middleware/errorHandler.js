@@ -60,7 +60,7 @@ const errorHandler = (err, req, res, next) => {
         // stackTrace: err.stack,
       });
     default:
-      console.log("No Error all good");
+      // console.log("No Error all good");
       res.status(422).json({
         title: "Unable to process the request",
         message: "Request Contains Semantic errors, and the Server can't process it",
