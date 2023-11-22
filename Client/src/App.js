@@ -7,6 +7,8 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Myposts from "./pages/myposts/Mypost";
 import Categoryfilter from "./pages/categoryfilter/Categoryfilter";
+import ConversationSummarizer from "./pages/conversationSummarizationAzure/ConversationSummarization";
+
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { useContext } from "react";
 import { Context } from "./context/Context";
@@ -44,6 +46,7 @@ function App() {
         <Route path="/user-info">{user ? <Userinfo /> : <Register />}</Route>
         <Route path="/post/:postId">{user ? <Single /> : <Login />}</Route>
         <Route path="/cat/:c_name/:c_id"><Categoryfilter /></Route>
+        <Route path="/conv-summary"><ConversationSummarizer /></Route>
 
       </Switch>
     </Router>

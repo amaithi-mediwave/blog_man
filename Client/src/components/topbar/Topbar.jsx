@@ -44,6 +44,12 @@ export default function TopBar() {
               Write
             </Link>
           </li>
+          <li className="topListItem">
+            <Link className="link" to="/conv-summary">
+              Conv-summary
+            </Link>
+          </li>
+
           <li className="topListItem" onClick={
             () => { if (window.confirm("Are You Sure to Signout..?")) { handleLogout() }; }}>
             {user && "Logout"}
